@@ -1,0 +1,1297 @@
+/* General Body and Background */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    position: relative; /* Needed for background overlay */
+}
+
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('C:/Users/HP/Desktop/Web Site  - UNIVISTA/image/bg1.jpg') no-repeat center center/cover;
+    filter: brightness(0.7); /* Darken the background slightly for text readability */
+    z-index: -1; /* Puts it behind content */
+}
+
+/* Navigation Bar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    background-color: rgba(20, 20, 20, 0.8); /* Semi-transparent dark background */
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-left, .navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.university-logo {
+    height: 60px; /* Adjust as needed */
+    margin-right: 20px;
+}
+
+.navbar nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar nav ul li {
+    margin-right: 25px;
+}
+
+.navbar nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar nav ul li a:hover {
+    color: #f0a04b; /* Highlight color */
+}
+
+.search-bar {
+    display: flex;
+    margin-right: 20px;
+}
+
+.search-bar input {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.search-bar button {
+    background-color: #f0a04b;
+    border: none;
+    border-radius: 0 20px 20px 0;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+    background-color: #e0903b;
+}
+
+.login-button {
+    background-color: #8f0d0dd7;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-right: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: #ac460b;
+}
+
+.univista-logo {
+    height: 60px; /* Adjust as needed */
+    border-radius: 50%; /* If it's a circular logo */
+}
+
+/* Home Page Content */
+.home-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    color: #fff; /* White text for content over background */
+}
+
+.hero-section {
+    text-align: center;
+    padding: 80px 0;
+    margin-bottom: 50px;
+}
+
+.hero-section h1 {
+    font-size: 3.5em;
+    margin-bottom: 20px;
+    color: #f0f0f0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-section p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    color: #e0e0e0;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+
+.hero-login-button {
+    background-color: #8f0d0dd7;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.hero-login-button:hover {
+    background-color: #ac460b;
+    transform: translateY(-2px);
+}
+
+
+.profile-button-style {
+    display: inline-block; /* Ensure it respects margin/padding */
+    padding: 8px 15px;
+    margin-left: 10px;
+    border: 1px solid #0056b3; /* Darker blue border */
+    border-radius: 5px;
+    background-color: #007bff; /* Primary blue color */
+    color: white !important; /* Ensure text color is white */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* Hover effect */
+.profile-button-style:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+/* Ensure the Logout button also looks like a button */
+.navbar-right .login-button {
+    /* Assuming this is the class for both login and logout buttons */
+    /* If you want logout to look different, give it a specific ID/class */
+    /* Example: making the logout button red */
+    
+    /* Standard button style */
+    padding: 8px 15px;
+    margin-left: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    
+    /* Logout specific look */
+    /* Note: Since CSS doesn't support the &[id="logout-button"] syntax universally, 
+       we rely on the specific `id` if styling is done in JS, otherwise use the class.
+       The existing CSS targets `.login-button` which should work fine. */
+}
+
+
+/* Upcoming Events Section */
+.upcoming-events-section {
+    background-color: rgba(177, 52, 52, 0.95); /* Slightly transparent white */
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    color: #333; /* Dark text for readability on light background */
+}
+
+.upcoming-events-section h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    color: #333;
+}
+
+.filters {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.filters select {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    outline: none;
+}
+
+.filters select:focus {
+    border-color: #f0a04b;
+    box-shadow: 0 0 0 2px rgba(240, 160, 75, 0.2);
+}
+
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.event-card {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.event-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+}
+
+.event-card h3 {
+    font-size: 1.4em;
+    margin: 15px 15px 10px 15px;
+    color: #333;
+}
+
+.event-card p {
+    font-size: 0.95em;
+    color: #666;
+    margin: 5px 15px;
+}
+
+.event-card .event-price {
+    font-weight: bold;
+    color: #f0a04b;
+    margin-top: 10px;
+}
+
+.event-card .view-details-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 0 0 8px 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    margin-top: auto; /* Pushes button to the bottom */
+    transition: background-color 0.3s ease;
+}
+
+.event-card .view-details-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 30px;
+    background-color: rgba(20, 20, 20, 0.8);
+    color: #bbb;
+    margin-top: 50px;
+}
+
+/* Forms (Login/Register) */
+.form-container {
+    max-width: 500px;
+    margin: 80px auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    color: #333;
+    text-align: center;
+}
+
+.form-container h2 {
+    margin-bottom: 30px;
+    font-size: 2em;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group select,
+.form-group textarea { /* Added inputs for event form */
+    width: calc(100% - 24px); /* Account for padding */
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #f0a04b;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(240, 160, 75, 0.2);
+}
+
+.form-button {
+    background-color: #f0a04b;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.form-button:hover {
+    background-color: #e0903b;
+}
+
+.form-link {
+    display: block;
+    margin-top: 15px;
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.form-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Faculty Container (for crew registration) */
+.faculty-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.faculty-box {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.faculty-box:hover {
+    background-color: #e6f7ff;
+    border-color: #a3daff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.faculty-box i {
+    font-size: 3em;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.faculty-box.selected {
+    border-color: #f0a04b;
+    box-shadow: 0 0 0 3px rgba(240, 160, 75, 0.4);
+    background-color: #fff9ed;
+}
+
+.faculty-label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Calendar Styling (basic) */
+.calendar-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-top: 50px;
+    color: #333;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 5px;
+}
+
+.calendar-grid div {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+}
+
+.calendar-grid .day-name {
+    font-weight: bold;
+    background-color: #e0e0e0;
+}
+
+.calendar-grid .date.has-event {
+    background-color: #f0a04b;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Event Details Page */
+.event-details-container {
+    max-width: 900px;
+    margin: 80px auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    color: #333;
+}
+
+.event-details-container h1 {
+    font-size: 2.8em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.event-details-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+.event-meta div {
+    background-color: #f0f0f0;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.event-description {
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+.booking-section, .payment-section, .confirmation-section {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+.booking-section h3, .payment-section h3, .confirmation-section h3 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.booking-section label, .payment-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.booking-section input, .payment-section input, .booking-section select {
+    width: calc(100% - 24px);
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+.total-payment {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #f0a04b;
+    margin-top: 20px;
+    text-align: right;
+}
+
+.payment-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.confirmation-section p {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.qr-code-placeholder {
+    width: 200px;
+    height: 200px;
+    background-color: #eee;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    font-weight: bold;
+    color: #777;
+    text-align: center;
+}
+
+/* Crew Dashboard - Add Event Form */
+.add-event-form-container {
+    max-width: 800px;
+    margin: 80px auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    color: #333;
+}
+
+.add-event-form-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+}
+
+.add-event-form-container .form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+.add-event-form-container .checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.add-event-form-container .checkbox-group input {
+    margin-right: 10px;
+    width: auto;
+}
+
+.add-event-form-container textarea {
+    width: calc(100% - 24px);
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.file-upload-box {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.file-upload-box.dragover {
+    background-color: #e6f7ff;
+    border-color: #007bff;
+}
+
+.file-upload-box i {
+    font-size: 3em;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.file-upload-box p {
+    margin: 0;
+    color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 3%;
+    }
+
+    .navbar-left, .navbar-right {
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .navbar nav ul {
+        flex-direction: column;
+        margin-top: 10px;
+    }
+
+    .navbar nav ul li {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .search-bar {
+        margin-right: 0;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .search-bar input {
+        width: calc(100% - 40px);
+    }
+
+    .hero-section h1 {
+        font-size: 2.5em;
+    }
+
+    .hero-section p {
+        font-size: 1em;
+    }
+
+    .event-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .faculty-container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    .payment-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Profile Layout Container --- */
+.profile-page-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    display: grid;
+    /* Two columns: one for header/details, one for activities, or a single column on mobile */
+    grid-template-columns: 1fr; 
+    gap: 30px;
+}
+
+@media (min-width: 992px) {
+    .profile-page-container {
+        grid-template-columns: 1fr 2fr; /* Layout for desktop: 1/3 for sidebar, 2/3 for main content */
+    }
+}
+
+/* --- 5.1 Profile Header & Details Card (Sidebar on Desktop) --- */
+
+.profile-header {
+    text-align: center;
+    padding: 30px 20px;
+    background-color: #ffffff; /* Light background for the header area */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+
+.profile-details-card {
+    padding: 25px;
+    background-color: #f7f9fc; /* Slightly darker background for the card body */
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+    text-align: left; /* Ensure details align left */
+}
+
+.profile-details-card h2 {
+    font-size: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.detail-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.detail-group:last-of-type {
+    border-bottom: none;
+    margin-bottom: 20px;
+}
+
+.detail-group label {
+    font-weight: 500;
+    color: #555;
+    flex-basis: 30%;
+}
+
+.detail-group p {
+    font-weight: 600;
+    color: #111;
+    flex-basis: 70%;
+    text-align: right;
+    margin: 0;
+}
+
+/* --- 5.2 User Activities Section (Main Content Area) --- */
+
+.user-activities {
+    padding: 20px 0;
+}
+
+.user-activities h2 {
+    font-size: 1.8rem;
+    color: #111;
+    margin-bottom: 25px;
+}
+
+.bookings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.booking-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-left: 5px solid #007bff; /* Highlight primary color */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.booking-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.booking-card h4 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.booking-card p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.booking-card .status-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+.status-tag.confirmed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-tag.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* --- 5.3 Button Styling --- */
+
+/* Reusing your existing .form-button but ensuring it fits */
+#edit-profile-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff; /* Primary Action Color */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#edit-profile-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-page-container {
+        grid-template-columns: 1fr;
+        margin: 20px auto;
+        padding: 10px;
+    }
+    .profile-header {
+        padding: 20px 15px;
+    }
+    #profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* ==================================================================== */
+/* 6. PROFILE DASHBOARD STYLES (Image-Based Layout) */
+/* ==================================================================== */
+
+.profile-dashboard-container {
+    /* Use padding to keep content off the edges */
+    padding: 50px 20px;
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 40px;
+}
+
+.profile-main-content {
+    /* Takes up the left side and centers the text */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 50px; /* Space from the navbar */
+}
+
+.profile-greeting h1 {
+    font-size: 4rem;
+    color: #ffffff; /* White text for dark background */
+    margin-bottom: 10px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.profile-greeting p {
+    font-size: 1.5rem;
+    color: #ccc;
+    margin-bottom: 50px;
+}
+
+.action-buttons-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    justify-content: center;
+}
+
+.action-button {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 250px;
+}
+
+.action-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.add-event-button {
+    /* Light Blue/Green gradient from the image */
+    background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+    color: #1a1a1a;
+}
+
+.book-event-button {
+    /* Light Green gradient from the image */
+    background: linear-gradient(135deg, #81c784 0%, #a5d6a7 100%);
+    color: #1a1a1a;
+}
+
+/* --- Right Sidebar (Calendar & Links) --- */
+
+.profile-sidebar-right {
+    min-width: 300px; /* Fixed width for calendar */
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding-top: 50px; /* Aligns with the main content */
+}
+
+/* Calendar Widget */
+.calendar-widget {
+    background-color: #333333; /* Dark background for the widget */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 5px;
+}
+
+.day-label {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #f0a04b; /* Accent color for day labels */
+}
+
+.date-cell {
+    padding: 8px 0;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: default;
+    transition: background-color 0.1s;
+}
+
+.date-cell:not(.empty):hover {
+    background-color: #555;
+    cursor: pointer;
+}
+
+.date-cell.marked {
+    background-color: #007bff; /* Blue for marked event dates */
+    font-weight: bold;
+}
+
+.my-tickets-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #f0a04b; /* Accent color from the image */
+    color: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Published Events Link */
+.published-events-link {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.published-events-link i {
+    color: #f0a04b;
+}
+
+.published-events-link a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.published-events-link a:hover {
+    color: #f0a04b;
+}
+
+
+/* --- Modal for Ticket/Event Lists --- */
+.overlay-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.6); 
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Styles for lists inside modal */
+.booking-list, .submitted-events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.booking-card, .submitted-event-card {
+    padding: 15px;
+    border-left: 5px solid #007bff;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-card h4, .submitted-event-card h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.view-details-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Responsive adjustment for the dashboard */
+@media (max-width: 992px) {
+    .profile-dashboard-container {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .profile-main-content {
+        order: 2; /* Move main content below the sidebar on mobile */
+        padding-top: 0;
+    }
+    .profile-sidebar-right {
+        order: 1; 
+        min-width: unset;
+        width: 100%;
+    }
+    .profile-greeting h1 {
+        font-size: 3rem;
+    }
+}
+
+/* ==================================================================== */
+/* 7. POST EVENT FORM STYLES */
+/* ==================================================================== */
+
+.form-container.post-event-form {
+    max-width: 900px;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    margin: 50px auto;
+}
+
+.form-group-inline {
+    display: flex;
+    gap: 20px;
+}
+
+.form-group-inline > .form-group {
+    flex: 1;
+    min-width: 45%;
+}
+
+.form-section {
+    padding: 10px 0;
+}
+
+.form-section.active { 
+    display: block; 
+} /* Critical to ensure active step is visible */
+
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+#current-step-display {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* Checkbox/Radio Styling for Audience/Tickets */
+.audience-options, .ticket-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.audience-options label, .ticket-options label {
+    background-color: #f0f0f0;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 500;
+    border: 1px solid #ddd;
+}
+
+.audience-options input:checked + label, .ticket-options input:checked + label {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.audience-options input, .ticket-options input {
+    display: none;
+}
+
+/* File Upload Display */
+.file-upload-display {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 5px;
+    background-color: #f9f9f9;
+    font-size: 0.9em;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Summary Styles */
+.summary-details h3 {
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+    margin-top: 25px;
+    font-size: 1.5rem;
+    color: #004d99;
+}
+.summary-item {
+    padding: 10px 0;
+    border-bottom: 1px dashed #ddd;
+    display: flex;
+    align-items: flex-start;
+}
+.summary-item strong {
+    display: inline-block;
+    min-width: 180px;
+    font-weight: 600;
+    color: #333;
+}
+.summary-details p {
+    white-space: pre-wrap; /* Preserve line breaks in description */
+    margin-top: 10px;
+    color: #444;
+    line-height: 1.6;
+}
+.faculty-list-group {
+    background-color: #f7f7ff;
+    border: 1px solid #cfe2ff;
+}

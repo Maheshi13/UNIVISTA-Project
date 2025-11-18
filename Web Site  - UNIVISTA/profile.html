@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVISTA - Profile Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+<body>
+    <div class="background-overlay"></div> 
+    
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="https://cmb.ac.lk/wp-content/uploads/logo-web.png" alt="University Logo" class="university-logo">
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="main.html">Events</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                </ul>
+            </nav>
+        </div>
+        
+        <div class="navbar-right">
+            <img src="C:\Users\HP\Desktop\Web Site  - UNIVISTA\image\logo2.png" alt="UNIVISTA Logo" class="univista-logo">
+            <button id="logout-button" class="login-button" style="background-color: #dc3545; display:none;">Logout</button>
+        </div>
+    </header>
+    
+    <main class="profile-dashboard-container">
+        
+        <div class="profile-main-content">
+            <div class="profile-greeting">
+                <h1 id="profile-name-display">Hi USER NAME!</h1>
+                <p>Step in to the world of UNIVISTA!</p>
+            </div>
+
+            <div class="action-buttons-group">
+                <button class="action-button add-event-button" onclick="window.location.href='post-event.html'">
+                    <i class="fas fa-plus-circle"></i> Let's Add Your Event
+                </button>
+                <button class="action-button book-event-button" onclick="window.location.href='main.html'">
+                    <i class="fas fa-calendar-alt"></i> Let's Book Our Event
+                </button>
+            </div>
+            
+            <div id="hidden-sections" style="display:none;">
+                <div id="account-info">
+                    <p>Email: <span id="detail-email"></span></p>
+                    <p>Role: <span id="profile-role"></span></p>
+                    <p id="faculty-group-display" style="display:none;">Faculty: <span id="detail-faculty"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-sidebar-right">
+            
+            <div class="calendar-widget">
+                <div class="calendar-header">
+                    <button>&lt;</button>
+                    <span>November 2025</span>
+                    <button>&gt;</button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="day-label">Mon</div><div class="day-label">Tue</div><div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div><div class="day-label">Sun</div>
+                    <div class="date-cell empty"></div><div class="date-cell">1</div><div class="date-cell">2</div>
+                    <div class="date-cell">3</div><div class="date-cell">4</div><div class="date-cell">5</div><div class="date-cell">6</div><div class="date-cell">7</div><div class="date-cell">8</div><div class="date-cell">9</div>
+                    <div class="date-cell">10</div><div class="date-cell">11</div><div class="date-cell">12</div><div class="date-cell marked">13</div><div class="date-cell">14</div><div class="date-cell">15</div><div class="date-cell">16</div>
+                    <div class="date-cell">17</div><div class="date-cell">18</div><div class="date-cell">19</div><div class="date-cell">20</div><div class="date-cell">21</div><div class="date-cell">22</div><div class="date-cell">23</div>
+                    <div class="date-cell">24</div><div class="date-cell">25</div><div class="date-cell">26</div><div class="date-cell">27</div><div class="date-cell">28</div><div class="date-cell">29</div><div class="date-cell">30</div>
+                </div>
+                <button id="my-tickets-btn" class="my-tickets-btn">My Tickets</button>
+            </div>
+
+            <div class="published-events-link">
+                <i class="fas fa-calendar"></i>
+                <a href="#" onclick="showSubmittedEvents()">Published events</a>
+            </div>
+        </div>
+        
+        <div id="overlay-modal" class="overlay-modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2 id="modal-title"></h2>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+        
+    </main>
+
+    <footer>
+        <p>&copy; 2023 UNIVISTA. All rights reserved.</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script> 
+    
+    <script src="firebase-config.js"></script>
+    <script src="js/firestore.js"></script> 
+    
+    <script>
+        // Store UID globally once loaded
+        let currentUserId = null; 
+
+        // --- Modal/Overlay Controls ---
+        function openModal(title, contentHTML) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = contentHTML;
+            document.getElementById('overlay-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('overlay-modal').style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            const modal = document.getElementById('overlay-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+        
+        // --- Core Loading Functions ---
+
+        /**
+         * Fetches user profile data, updates UI, and sets up data loading.
+         */
+        async function loadUserProfile(user) {
+            currentUserId = user.uid;
+
+            try {
+                // 1. Fetch user role and details from Firestore
+                // (Assumes getCurrentUserRole is available in js/firestore.js)
+                const userProfile = await getCurrentUserRole();
+                const userName = userProfile.name || user.displayName || user.email.split('@')[0];
+                const userRole = userProfile.role || 'user';
+                
+                // 2. Render static profile data
+                document.getElementById('profile-name-display').textContent = `Hi ${userName.toUpperCase()}!`;
+                document.getElementById('detail-email').textContent = user.email;
+                document.getElementById('profile-role').textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+
+                // 3. Handle Faculty specific fields (for crew/users who registered with faculty)
+                if (userProfile.faculty) {
+                    document.getElementById('faculty-group-display').style.display = 'block';
+                    document.getElementById('detail-faculty').textContent = userProfile.faculty;
+                }
+                
+                // 4. Set up sidebar button actions
+                document.getElementById('my-tickets-btn').onclick = showBookedTickets;
+                
+                // 5. Load calendar data (to mark dates)
+                // We'll run this in the background as it's not critical for UI loading
+                loadCalendarMarkings(user.uid); 
+
+            } catch (error) {
+                console.error("Error loading user profile:", error);
+                document.getElementById('profile-name-display').textContent = 'Profile Error';
+            }
+        }
+
+        /**
+         * Fetches and displays the user's booked tickets in a modal.
+         */
+        async function showBookedTickets() {
+            if (!currentUserId) return;
+            let loadingHTML = '<p class="loading-message">Fetching tickets...</p>';
+            openModal('My Booked Tickets', loadingHTML);
+            
+            try {
+                // (Assumes DB query is available)
+                const ticketSnapshot = await db.collection('tickets')
+                    .where('userId', '==', currentUserId)
+                    .orderBy('bookedAt', 'desc')
+                    .get();
+                
+                if (ticketSnapshot.empty) {
+                    openModal('My Booked Tickets', '<p class="loading-message">You have no current event bookings.</p>');
+                    return;
+                }
+
+                let bookingsHtml = '<div class="booking-list">';
+                // Use Promise.all to fetch event details for all tickets concurrently
+                const eventDetailPromises = ticketSnapshot.docs.map(async (ticketDoc) => {
+                    const ticket = ticketDoc.data();
+                    const eventDoc = await db.collection('events').doc(ticket.eventId).get();
+                    const event = eventDoc.exists ? eventDoc.data() : { name: 'Event Not Found', date: 'N/A', time: 'N/A' };
+                    
+                    return `
+                        <div class="booking-card">
+                            <h4>${event.name}</h4>
+                            <p><strong>Date:</strong> ${event.date} | <strong>Tickets:</strong> ${ticket.ticketCount}</p>
+                            <span class="status-tag confirmed">Confirmed</span>
+                            <a href="event-details.html?id=${ticket.eventId}" class="view-details-link">View Event</a>
+                        </div>
+                    `;
+                });
+
+                bookingsHtml += (await Promise.all(eventDetailPromises)).join('');
+                bookingsHtml += '</div>';
+                openModal('My Booked Tickets', bookingsHtml);
+
+            } catch (error) {
+                console.error("Error fetching user bookings:", error);
+                openModal('My Booked Tickets', '<p class="loading-message" style="color: red;">Failed to load bookings data.</p>');
+            }
+        }
+
+        /**
+         * Fetches and displays the user's submitted events in a modal.
+         */
+        async function showSubmittedEvents() {
+            if (!currentUserId) return;
+            let loadingHTML = '<p class="loading-message">Loading submitted events...</p>';
+            openModal('My Submitted Events', loadingHTML);
+            
+            try {
+                const submittedSnapshot = await db.collection('events')
+                    .where('postedByUid', '==', currentUserId)
+                    .orderBy('submissionTimestamp', 'desc')
+                    .get();
+
+                if (submittedSnapshot.empty) {
+                    openModal('My Submitted Events', '<p class="loading-message">You have not submitted any events yet.</p>');
+                    return;
+                }
+
+                let submittedHtml = '<div class="submitted-events-list">';
+                submittedHtml += submittedSnapshot.docs.map(doc => {
+                    const event = doc.data();
+                    const statusClass = event.status || 'pending';
+                    const statusText = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
+
+                    return `
+                        <div class="submitted-event-card" data-status="${statusClass}">
+                            <h4>${event.name}</h4>
+                            <p><strong>Date:</strong> ${event.date} | <strong>Faculty:</strong> ${event.faculty}</p>
+                            <span class="event-status-tag status-${statusClass}">${statusText}</span>
+                            <a href="event-details.html?id=${doc.id}" class="view-details-link">View Details</a>
+                        </div>
+                    `;
+                }).join('');
+                submittedHtml += '</div>';
+
+                openModal('My Submitted Events', submittedHtml);
+
+            } catch (error) {
+                console.error("Error fetching user submitted events:", error);
+                openModal('My Submitted Events', '<p class="loading-message" style="color: red;">Failed to load submitted events data.</p>');
+            }
+        }
+
+        /**
+         * Loads calendar markings (Optional: highly complex with basic HTML). 
+         * For simplicity, this function is a placeholder. A full calendar library 
+         * (like FullCalendar) is recommended for real date marking.
+         */
+        async function loadCalendarMarkings(userId) {
+            // Placeholder: Logic to fetch event dates is complex without a library.
+            // For now, the calendar widget is static, matching the image.
+            
+            // To implement fully:
+            // 1. Fetch all future booked/submitted event dates.
+            // 2. Iterate through the static .calendar-grid divs and add a 'marked' class 
+            //    to dates that match the fetched event dates.
+        }
+
+
+        // =============================================================
+        // CRITICAL FIX: Wait for Firebase Auth State before loading
+        // =============================================================
+        document.addEventListener('DOMContentLoaded', () => {
+             const logoutButton = document.getElementById('logout-button');
+             
+             // Handle Logout
+            if (logoutButton) {
+                logoutButton.addEventListener('click', async () => {
+                    try {
+                        await auth.signOut();
+                        window.location.href = 'index.html'; 
+                    } catch (error) {
+                        console.error("Logout Error:", error);
+                        alert("Logout failed. Please try again.");
+                    }
+                });
+            }
+
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    logoutButton.style.display = 'block';
+                    try {
+                        await loadUserProfile(user);
+                    } catch (error) {
+                        console.error("Profile load failed after auth check:", error);
+                    }
+                } else {
+                    // Redirect if user is not authenticated
+                    alert("You must be logged in to view your profile.");
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVISTA - Crew Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="https://cmb.ac.lk/wp-content/uploads/logo-web.png" alt="University Logo" class="university-logo">
+            <nav id="main-nav"> <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="crew-dashboard.html" id="nav-profile">Crew Dashboard</a></li> 
+                    <li><button id="logout-button" class="login-button">Logout</button></li> <li><a href="post-event.html" class="nav-button">Add Event</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <img src="img/univista-logo.png" alt="UNIVISTA Logo" class="univista-logo">
+        </div>
+    </header>
+
+    <main class="dashboard-content-container">
+        <h2 id="crew-dashboard-header">Loading Crew Dashboard...</h2>
+        
+        <h3>Events Awaiting Approval</h3>
+        <div id="pending-events-list">
+            <p>Loading pending events...</p>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2023 UNIVISTA. All rights reserved.</p></footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script> 
+    
+    <script src="firebase-config.js"></script>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/firestore.js"></script>
+    <script src="js/ui.js"></script> 
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for Firebase Auth to initialize
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    alert("Please log in to access the Crew Dashboard.");
+                    window.location.href = 'login.html'; 
+                    return;
+                }
+
+                // Fetch the user's role and assigned faculty
+                db.collection("users").doc(user.uid).get().then((doc) => {
+                    if (doc.exists) {
+                        const profile = doc.data();
+                        
+                        // FIX: Use 'faculty' field name, not 'assignedFaculty'
+                        const assignedFaculty = profile.faculty; 
+
+                        if (profile.role === 'crew' && assignedFaculty) {
+                            // Display the header
+                            document.getElementById('crew-dashboard-header').textContent = `${assignedFaculty} Crew Dashboard`;
+                            
+                            // CRITICAL: Execute the function to fetch pending events for this faculty
+                            if (typeof fetchPendingEvents !== 'undefined') {
+                                fetchPendingEvents(assignedFaculty); 
+                            } else {
+                                document.getElementById('pending-events-list').innerHTML = '<p style="color:red;">Error: Required function "fetchPendingEvents" not found in js/firestore.js</p>';
+                            }
+
+                        } else {
+                            // User is logged in but not a crew member
+                            alert("Access denied. You do not have crew privileges.");
+                            window.location.href = 'profile.html';
+                        }
+                    } else {
+                        // Profile document not found
+                        alert("User profile data not found.");
+                        auth.signOut(); // Force logout
+                        window.location.href = 'login.html';
+                    }
+                }).catch(error => {
+                    console.error("Error loading crew profile:", error);
+                    alert("Error loading profile data. Please try again.");
+                });
+            });
+
+            // CRITICAL: Attach Logout Handler (using the global handleLogout function from js/ui.js)
+            const logoutButton = document.getElementById('logout-button');
+            if(logoutButton && typeof handleLogout !== 'undefined') {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+        });
+    </script>
+</body>
+</html>

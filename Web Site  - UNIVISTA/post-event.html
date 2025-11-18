@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVISTA - Post New Event</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ADD THIS TO YOUR css/style.css FILE (See section 2) */
+        /* Temporary included styles to ensure display integrity */
+        .form-container.post-event-form {
+            max-width: 900px;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .audience-options, .ticket-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .audience-options label, .ticket-options label {
+            background-color: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        .audience-options input:checked + label, .ticket-options input:checked + label {
+            background-color: #007bff;
+            color: white;
+        }
+        .audience-options input, .ticket-options input {
+            display: none;
+        }
+        .summary-details h3 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            font-size: 1.5rem;
+        }
+        .summary-item {
+            padding: 10px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        .summary-item strong {
+            display: inline-block;
+            width: 150px;
+            color: #333;
+        }
+        .file-upload-display {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+        }
+        .faculty-list-group {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        #current-step-display {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        /* NEW STYLES FOR POSTER PREVIEW */
+        .poster-preview-container {
+            margin-top: 20px;
+            margin-bottom: 30px; 
+            border: 1px solid #ccc;
+            padding: 15px; 
+            border-radius: 8px;
+            text-align: center;
+            background-color: #f0f8ff; 
+        }
+        .poster-preview-container h3 {
+             border-bottom: none; 
+             margin-top: 0;
+             margin-bottom: 10px;
+             color: #007bff;
+        }
+        .poster-preview-container img {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px; 
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="https://cmb.ac.lk/wp-content/uploads/logo-web.png" alt="University Logo" class="university-logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="main.html">Events</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <img src="C:\Users\HP\Desktop\Web Site  - UNIVISTA\image\logo2.png" alt="UNIVISTA Logo" class="univista-logo">
+        </div>
+    </header>
+
+    <div class="form-container post-event-form">
+        <h2>Submit New Event Post</h2>
+        <div id="current-step-display">Step 1 of 2: Event Details</div>
+
+        <form id="post-event-form">
+            <div id="step-1" class="form-section active">
+                
+                <div class="form-group">
+                    <label for="event-name">Event Name *</label>
+                    <input type="text" id="event-name" required>
+                </div>
+                
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label for="event-date">Date *</label>
+                        <input type="date" id="event-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-time">Time *</label>
+                        <input type="time" id="event-time" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-location">Location *</label>
+                    <input type="text" id="event-location" placeholder="e.g., Main Auditorium, UCSC Building" required>
+                </div>
+
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label for="event-category">Category *</label>
+                        <select id="event-category" required>
+                            <option value="">Select Category</option>
+                            <option value="academic">Academic</option>
+                            <option value="sports">Sports</option>
+                            <option value="cultural">Cultural</option>
+                            <option value="social">Social</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hosting-faculty">Hosting Faculty (Auto-filled) *</label>
+                        <input type="text" id="hosting-faculty" readonly required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-description">Event Description *</label>
+                    <textarea id="event-description" rows="5" required></textarea>
+                </div>
+
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label for="contact-numbers">Contact Number(s) *</label>
+                        <input type="text" id="contact-numbers" placeholder="e.g., 071-1234567, 077-9876543" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-poster">Event Poster *</label>
+                        <input type="file" id="event-poster" accept="image/*" required>
+                        <div class="file-upload-display" id="poster-file-name">No file selected.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Does the event require ticket booking? *</label>
+                    <div class="ticket-options">
+                        <input type="radio" id="ticket-yes" name="ticket-required" value="true" required>
+                        <label for="ticket-yes">Yes, Ticket Booking Required</label>
+                        
+                        <input type="radio" id="ticket-no" name="ticket-required" value="false">
+                        <label for="ticket-no">No, Free Entry</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Audience Type *</label>
+                    <div class="audience-options">
+                        <input type="checkbox" id="audience-members" name="audience-type" value="members">
+                        <label for="audience-members">University Members</label>
+                        
+                        <input type="checkbox" id="audience-guests" name="audience-type" value="guests">
+                        <label for="audience-guests">Guests/Public</label>
+                    </div>
+                </div>
+
+                <div id="faculty-selection-group" class="form-group faculty-list-group" style="display:none;">
+                    <label for="target-faculty">Target Faculties (for University Members)</label>
+                    <select id="target-faculty" multiple>
+                        <option value="all" selected>All Faculties</option>
+                        <option value="Faculty of Science">Faculty of Science</option>
+                        <option value="Faculty of Management and Financial">Faculty of Management and Financial</option>
+                        <option value="University of Colombo School of Computing">University of Colombo School of Computing (UCSC)</option>
+                        <option value="Faculty of Art">Faculty of Art</option>
+                        <option value="Faculty of Law">Faculty of Law</option>
+                        <option value="Faculty of Education">Faculty of Education</option>
+                        <option value="Faculty of Technology">Faculty of Technology</option>
+                        <option value="Faculty of Nursing">Faculty of Nursing</option>
+                        <option value="Sripalee Campus">Sripalee Campus</option>
+                        <option value="Faculty of Indigenous Medicine">Faculty of Indigenous Medicine</option>
+                        <option value="Faculty of Medicine">Faculty of Medicine</option>
+                    </select>
+                    <p style="font-size: 0.85em; color: #555; margin-top: 10px;">Hold Ctrl/Cmd to select multiple faculties, or select "All Faculties".</p>
+                </div>
+            </div>
+
+            <div id="step-2" class="form-section">
+                <h3>Event Post Summary</h3>
+                
+                <div class="poster-preview-container">
+                    <h3>Event Poster Preview</h3>
+                    <img id="summary-poster-preview" src="" alt="Event Poster Preview" style="display:none;">
+                    <p id="summary-poster-name-text">No file selected.</p>
+                </div>
+                <div class="summary-details">
+                    <div class="summary-item"><strong>Name:</strong> <span id="summary-name"></span></div>
+                    <div class="summary-item"><strong>Date & Time:</strong> <span id="summary-datetime"></span></div>
+                    <div class="summary-item"><strong>Location:</strong> <span id="summary-location"></span></div>
+                    <div class="summary-item"><strong>Category:</strong> <span id="summary-category"></span></div>
+                    <div class="summary-item"><strong>Hosting Faculty:</strong> <span id="summary-host-faculty"></span></div>
+                    
+                    <h3 style="margin-top: 30px; border-bottom: 2px solid #007bff; padding-bottom: 5px;">Description</h3>
+                    <p id="summary-description" style="white-space: pre-wrap; margin-bottom: 20px; padding: 10px; border: 1px dashed #eee;"></p>
+                    
+                    <div class="summary-item"><strong>Contact:</strong> <span id="summary-contact"></span></div>
+                    <div class="summary-item"><strong>Ticket Required:</strong> <span id="summary-ticket"></span></div>
+                    <div class="summary-item"><strong>Audience:</strong> <span id="summary-audience"></span></div>
+                    <div class="summary-item" id="summary-target-faculty-item" style="display:none;"><strong>Target Faculty:</strong> <span id="summary-target-faculty"></span></div>
+                </div>
+                
+                <p style="margin-top: 30px; font-weight: bold; color: #dc3545;">
+                    Note: Your submission will be sent to the Crew for approval before being published.
+                </p>
+            </div>
+
+            <div class="step-navigation">
+                <button type="button" id="back-button" class="form-button" style="background-color: #6c757d; display:none;"><i class="fas fa-arrow-left"></i> Back</button>
+                <button type="button" id="next-button" class="form-button">Next <i class="fas fa-arrow-right"></i></button>
+                <button type="submit" id="submit-button" class="form-button" style="background-color: #28a745; display:none;"><i class="fas fa-paper-plane"></i> Submit Event</button>
+            </div>
+        </form>
+    </div>
+
+    <footer><p>&copy; 2023 UNIVISTA. All rights reserved.</p></footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script> 
+    
+    <script src="firebase-config.js"></script>
+    <script src="js/firestore.js"></script> 
+    <script>
+        let currentStep = 1;
+        let eventPosterFile = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const form = document.getElementById('post-event-form');
+            const nextButton = document.getElementById('next-button');
+            const backButton = document.getElementById('back-button');
+            const submitButton = document.getElementById('submit-button');
+            const stepDisplay = document.getElementById('current-step-display');
+            const posterInput = document.getElementById('event-poster');
+            const audienceMembers = document.getElementById('audience-members');
+            const facultySelectionGroup = document.getElementById('faculty-selection-group');
+            const targetFacultySelect = document.getElementById('target-faculty');
+
+            // --- Initial Checks & Setup ---
+            // NOTE: auth and getCurrentUserRole are assumed to be defined in separate scripts (firebase-config.js and firestore.js)
+            const user = auth.currentUser;
+            if (!user) {
+                alert("You must be logged in to post an event.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 1. Auto-fill Hosting Faculty
+            try {
+                const userProfile = await getCurrentUserRole();
+                if (userProfile && userProfile.faculty) {
+                    document.getElementById('hosting-faculty').value = userProfile.faculty;
+                } else {
+                    document.getElementById('hosting-faculty').value = "N/A - Please contact admin.";
+                    // Optionally disable the form if faculty is mandatory for posting
+                }
+            } catch (error) {
+                console.error("Error loading user faculty:", error);
+                document.getElementById('hosting-faculty').value = "Error loading.";
+            }
+
+            // 2. Event Listeners
+            posterInput.addEventListener('change', (e) => {
+                eventPosterFile = e.target.files[0];
+                document.getElementById('poster-file-name').textContent = eventPosterFile ? eventPosterFile.name : 'No file selected.';
+            });
+
+            // FIX: Ensure faculty dropdown only shows for University Members
+            audienceMembers.addEventListener('change', () => {
+                facultySelectionGroup.style.display = audienceMembers.checked ? 'block' : 'none';
+            });
+            
+            // 3. Step Navigation Handlers
+            nextButton.addEventListener('click', () => {
+                if (currentStep === 1 && validateStep1()) {
+                    updateSummary(); // Update summary content before showing step 2
+                    showStep(2);
+                }
+            });
+
+            backButton.addEventListener('click', () => {
+                if (currentStep === 2) {
+                    showStep(1);
+                }
+            });
+
+            form.addEventListener('submit', handleFormSubmission);
+
+
+            // --- Core Functions ---
+
+            function showStep(step) {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                currentStep = step;
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                stepDisplay.textContent = `Step ${currentStep} of 2: ${currentStep === 1 ? 'Event Details' : 'Summary & Submit'}`;
+
+                backButton.style.display = currentStep === 2 ? 'block' : 'none';
+                nextButton.style.display = currentStep === 1 ? 'block' : 'none';
+                submitButton.style.display = currentStep === 2 ? 'block' : 'none';
+            }
+
+            function validateStep1() {
+                const step1 = document.getElementById('step-1');
+                const requiredInputs = step1.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredInputs.forEach(input => {
+                    // Custom validation checks
+                    if (!input.checkValidity() || (input.type === 'file' && !eventPosterFile)) {
+                        isValid = false;
+                    }
+                    if (input.type === 'radio' && input.name === 'ticket-required') {
+                        const checked = step1.querySelector('input[name="ticket-required"]:checked');
+                        if (!checked) isValid = false;
+                    }
+                });
+
+                // Audience checkbox validation
+                const audienceChecked = audienceMembers.checked || document.getElementById('audience-guests').checked;
+                if (!audienceChecked) {
+                    alert("Please select at least one Audience Type.");
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    alert("Please fill out all required fields marked with *.");
+                }
+
+                return isValid;
+            }
+
+            function updateSummary() {
+                const name = document.getElementById('event-name').value;
+                const date = document.getElementById('event-date').value;
+                const time = document.getElementById('event-time').value;
+                const location = document.getElementById('event-location').value;
+                const category = document.getElementById('event-category').value;
+                const hostFaculty = document.getElementById('hosting-faculty').value;
+                const contact = document.getElementById('contact-numbers').value;
+                const description = document.getElementById('event-description').value;
+                const ticketRequired = document.querySelector('input[name="ticket-required"]:checked').value === 'true' ? 'Yes' : 'No (Free Entry)';
+                
+                const summaryPosterPreview = document.getElementById('summary-poster-preview');
+                const summaryPosterNameText = document.getElementById('summary-poster-name-text');
+
+
+                document.getElementById('summary-name').textContent = name;
+                document.getElementById('summary-datetime').textContent = `${date} at ${time}`;
+                document.getElementById('summary-location').textContent = location;
+                document.getElementById('summary-category').textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                document.getElementById('summary-host-faculty').textContent = hostFaculty;
+                document.getElementById('summary-contact').textContent = contact;
+                document.getElementById('summary-description').textContent = description;
+                document.getElementById('summary-ticket').textContent = ticketRequired;
+                
+                // Audience Summary
+                let audienceTypes = [];
+                if (audienceMembers.checked) audienceTypes.push('University Members');
+                if (document.getElementById('audience-guests').checked) audienceTypes.push('Guests/Public');
+                document.getElementById('summary-audience').textContent = audienceTypes.join(' & ');
+
+                // Target Faculty Summary
+                if (audienceMembers.checked) {
+                    document.getElementById('summary-target-faculty-item').style.display = 'block';
+                    const selectedOptions = Array.from(targetFacultySelect.selectedOptions).map(option => option.text);
+                    document.getElementById('summary-target-faculty').textContent = selectedOptions.join(', ');
+                } else {
+                    document.getElementById('summary-target-faculty-item').style.display = 'none';
+                }
+                
+                // POSTER PREVIEW LOGIC
+                if (eventPosterFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        summaryPosterPreview.src = e.target.result;
+                        summaryPosterPreview.style.display = 'block';
+                        summaryPosterNameText.textContent = eventPosterFile.name;
+                    };
+                    reader.readAsDataURL(eventPosterFile);
+                } else {
+                    summaryPosterPreview.style.display = 'none';
+                    summaryPosterNameText.textContent = 'No poster file uploaded.';
+                }
+                // END POSTER PREVIEW LOGIC
+            }
+
+            async function handleFormSubmission(e) {
+                e.preventDefault();
+                if (currentStep !== 2) return;
+                
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                try {
+                    // 1. Upload Poster to Storage
+                    const posterURL = await uploadEventPoster();
+
+                    // 2. Prepare Data for Firestore
+                    const eventData = collectFormData(posterURL);
+
+                    // 3. Save Event to Firestore
+                    await db.collection("events").add(eventData);
+
+                    alert("Event successfully submitted for Crew review!");
+                    window.location.href = 'profile.html'; // Redirect to profile to see submitted event list
+
+                } catch (error) {
+                    console.error("Event submission failed:", error);
+                    alert(`Submission failed: ${error.message}`);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit Event';
+                }
+            }
+
+            async function uploadEventPoster() {
+                const user = auth.currentUser;
+                const eventNameSlug = document.getElementById('event-name').value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                
+                const filePath = `event_posters/${user.uid}/${eventNameSlug}-${Date.now()}`;
+                const storageRef = storage.ref(filePath);
+
+                const snapshot = await storageRef.put(eventPosterFile);
+                return snapshot.ref.getDownloadURL();
+            }
+
+            function collectFormData(posterURL) {
+                const targetFaculties = Array.from(targetFacultySelect.selectedOptions).map(option => option.value);
+
+                return {
+                    name: document.getElementById('event-name').value,
+                    date: document.getElementById('event-date').value,
+                    time: document.getElementById('event-time').value,
+                    location: document.getElementById('event-location').value,
+                    category: document.getElementById('event-category').value,
+                    hostingFaculty: document.getElementById('hosting-faculty').value,
+                    description: document.getElementById('event-description').value,
+                    contactNumbers: document.getElementById('contact-numbers').value,
+                    
+                    audience: {
+                        members: document.getElementById('audience-members').checked,
+                        guests: document.getElementById('audience-guests').checked,
+                        targetFaculties: document.getElementById('audience-members').checked ? targetFaculties : []
+                    },
+                    
+                    ticketsRequired: document.querySelector('input[name="ticket-required"]:checked').value === 'true',
+                    posterURL: posterURL,
+                    
+                    // Submission metadata
+                    status: 'pending', // Pending review by Crew
+                    postedByUid: auth.currentUser.uid,
+                    submissionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+            }
+            
+            // Initialize view
+            showStep(1);
+        });
+    </script>
+</body>
+</html>

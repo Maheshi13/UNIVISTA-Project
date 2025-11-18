@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVISTA - All Events</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="https://cmb.ac.lk/wp-content/uploads/logo-web.png" alt="University Logo" class="university-logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="events.html">Events</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <div class="search-bar"><input type="text" placeholder="Search events..."><button><i class="fas fa-search"></i></button></div>
+            <button class="login-button" onclick="location.href='login.html'">Login</button>
+            <img src="img/univista-logo.png" alt="UNIVISTA Logo" class="univista-logo">
+        </div>
+    </header>
+
+    <main class="home-content" style="color: #333;">
+        <section class="upcoming-events-section" style="padding-top: 20px;">
+            <h2>Browse All University Events</h2>
+            
+            <div class="filters" style="flex-wrap: wrap;">
+                <select id="event-type-filter">
+                    <option value="all">All Events</option>
+                    <option value="university-wide">University Wide Events</option>
+                    <option value="faculty-specific">Faculty Specific Events</option>
+                </select>
+                <select id="event-faculty-filter">
+                    <option value="all">Filter by Faculty (All)</option>
+                    </select>
+                <select id="event-category-filter">
+                    <option value="all">Filter by Category (All)</option>
+                    <option value="academic">Academic</option>
+                    <option value="sports">Sports</option>
+                    <option value="cultural">Cultural</option>
+                    <option value="social">Social</option>
+                    <option value="other">Other</option>
+                </select>
+                <select id="event-ticket-filter">
+                    <option value="all">Ticket Type (All)</option>
+                    <option value="paid">Paid</option>
+                    <option value="free">Free</option>
+                </select>
+            </div>
+
+            <div id="events-list" class="event-grid">
+                <p style="grid-column: 1 / -1; text-align: center; color: #555;">Loading events...</p>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                    <h3 id="current-month-year">November 2025</h3>
+                    <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-grid" id="calendar-grid">
+                    </div>
+            </div>
+        </section>
+    </main>
+
+    <footer><p>&copy; 2023 UNIVISTA. All rights reserved.</p></footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/firestore.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>
