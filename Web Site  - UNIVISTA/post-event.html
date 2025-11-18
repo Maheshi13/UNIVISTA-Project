@@ -46,6 +46,10 @@
         .audience-options input, .ticket-options input {
             display: none;
         }
+        /* 💥 MODIFIED: Ensures all summary details are left-aligned 💥 */
+        .summary-details {
+            text-align: left; 
+        }
         .summary-details h3 {
             border-bottom: 2px solid #007bff;
             padding-bottom: 5px;
@@ -88,7 +92,7 @@
             border: 1px solid #ccc;
             padding: 15px; 
             border-radius: 8px;
-            text-align: center;
+            text-align: center; /* Kept centered as requested */
             background-color: #f0f8ff; 
         }
         .poster-preview-container h3 {
@@ -191,13 +195,30 @@
                     <label>Does the event require ticket booking? *</label>
                     <div class="ticket-options">
                         <input type="radio" id="ticket-yes" name="ticket-required" value="true" required>
-                        <label for="ticket-yes">Yes, Ticket Booking Required</label>
+                        <label for="ticket-yes">Yes, Ticket Booking Required (Paid)</label>
                         
                         <input type="radio" id="ticket-no" name="ticket-required" value="false">
                         <label for="ticket-no">No, Free Entry</label>
                     </div>
                 </div>
 
+                <div id="ticket-details-group" style="display:none;">
+                    <h4 style="margin-top: 20px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Ticket & Payment Details</h4>
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="tickets-available">Tickets Available (Quantity) *</label>
+                            <input type="number" id="tickets-available" min="1" placeholder="Max number of tickets" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticket-price">Ticket Price (LKR) *</label>
+                            <input type="number" id="ticket-price" min="0" step="10" placeholder="Price per ticket" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-account-details">Payment Account Details (for Event Organizers) *</label>
+                        <textarea id="payment-account-details" rows="3" placeholder="e.g., Bank: Commercial Bank, A/C No: 1234567890, A/C Name: UCSC Sports Club. This will be shown to users who book tickets and used by the Payment Gateway." required></textarea>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label>Audience Type *</label>
                     <div class="audience-options">
@@ -249,6 +270,16 @@
                     
                     <div class="summary-item"><strong>Contact:</strong> <span id="summary-contact"></span></div>
                     <div class="summary-item"><strong>Ticket Required:</strong> <span id="summary-ticket"></span></div>
+                    
+                    <div class="summary-item" id="summary-tickets-available-item" style="display:none;">
+                        <strong>Tickets Available:</strong> <span id="summary-tickets-available"></span>
+                    </div>
+                    <div class="summary-item" id="summary-ticket-price-item" style="display:none;">
+                        <strong>Ticket Price:</strong> <span id="summary-ticket-price"></span>
+                    </div>
+                    <div class="summary-item" id="summary-payment-account-item" style="display:none;">
+                        <strong>Payment Details:</strong> <span id="summary-payment-account" style="white-space: pre-wrap;"></span>
+                    </div>
                     <div class="summary-item"><strong>Audience:</strong> <span id="summary-audience"></span></div>
                     <div class="summary-item" id="summary-target-faculty-item" style="display:none;"><strong>Target Faculty:</strong> <span id="summary-target-faculty"></span></div>
                 </div>
@@ -279,237 +310,306 @@
         let currentStep = 1;
         let eventPosterFile = null;
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const form = document.getElementById('post-event-form');
+        // --- Core Functions ---
+
+        function showStep(step) {
+            const stepDisplay = document.getElementById('current-step-display');
             const nextButton = document.getElementById('next-button');
             const backButton = document.getElementById('back-button');
             const submitButton = document.getElementById('submit-button');
-            const stepDisplay = document.getElementById('current-step-display');
+
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            currentStep = step;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            stepDisplay.textContent = `Step ${currentStep} of 2: ${currentStep === 1 ? 'Event Details' : 'Summary & Submit'}`;
+
+            backButton.style.display = currentStep === 2 ? 'block' : 'none';
+            nextButton.style.display = currentStep === 1 ? 'block' : 'none';
+            submitButton.style.display = currentStep === 2 ? 'block' : 'none';
+        }
+
+        function validateStep1() {
+            const step1 = document.getElementById('step-1');
+            const requiredInputs = step1.querySelectorAll('[required]'); 
+            let isValid = true;
+
+            requiredInputs.forEach(input => {
+                // Custom validation checks
+                if (!input.checkValidity() || (input.type === 'file' && !eventPosterFile)) {
+                    isValid = false;
+                }
+                if (input.type === 'radio' && input.name === 'ticket-required') {
+                    const checked = step1.querySelector('input[name="ticket-required"]:checked');
+                    if (!checked) isValid = false;
+                }
+            });
+
+            // Audience checkbox validation
+            const audienceMembers = document.getElementById('audience-members');
+            const audienceGuests = document.getElementById('audience-guests');
+            const audienceChecked = audienceMembers.checked || audienceGuests.checked;
+            if (!audienceChecked) {
+                alert("Please select at least one Audience Type.");
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                alert("Please fill out all required fields marked with *.");
+            }
+
+            return isValid;
+        }
+
+        function updateSummary() {
+            const name = document.getElementById('event-name').value;
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value;
+            const location = document.getElementById('event-location').value;
+            const category = document.getElementById('event-category').value;
+            const hostFaculty = document.getElementById('hosting-faculty').value;
+            const contact = document.getElementById('contact-numbers').value;
+            const description = document.getElementById('event-description').value;
+            const targetFacultySelect = document.getElementById('target-faculty');
+            const audienceMembers = document.getElementById('audience-members');
+
+            const ticketRequired = document.querySelector('input[name="ticket-required"]:checked').value === 'true' ? 'Yes (Paid)' : 'No (Free Entry)';
+            
+            const summaryPosterPreview = document.getElementById('summary-poster-preview');
+            const summaryPosterNameText = document.getElementById('summary-poster-name-text');
+
+
+            document.getElementById('summary-name').textContent = name;
+            document.getElementById('summary-datetime').textContent = `${date} at ${time}`;
+            document.getElementById('summary-location').textContent = location;
+            document.getElementById('summary-category').textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            document.getElementById('summary-host-faculty').textContent = hostFaculty;
+            document.getElementById('summary-contact').textContent = contact;
+            document.getElementById('summary-description').textContent = description;
+            document.getElementById('summary-ticket').textContent = ticketRequired;
+            
+            // Audience Summary
+            let audienceTypes = [];
+            if (audienceMembers.checked) audienceTypes.push('University Members');
+            if (document.getElementById('audience-guests').checked) audienceTypes.push('Guests/Public');
+            document.getElementById('summary-audience').textContent = audienceTypes.join(' & ');
+
+            // Target Faculty Summary
+            if (audienceMembers.checked) {
+                document.getElementById('summary-target-faculty-item').style.display = 'block';
+                const selectedOptions = Array.from(targetFacultySelect.selectedOptions).map(option => option.text);
+                document.getElementById('summary-target-faculty').textContent = selectedOptions.join(', ');
+            } else {
+                document.getElementById('summary-target-faculty-item').style.display = 'none';
+            }
+            
+            // Ticket Details Logic for Summary
+            const isPaid = document.querySelector('input[name="ticket-required"]:checked').value === 'true';
+
+            if (isPaid) {
+                document.getElementById('summary-tickets-available-item').style.display = 'block';
+                document.getElementById('summary-ticket-price-item').style.display = 'block';
+                document.getElementById('summary-payment-account-item').style.display = 'block';
+
+                document.getElementById('summary-tickets-available').textContent = document.getElementById('tickets-available').value;
+                document.getElementById('summary-ticket-price').textContent = `LKR ${document.getElementById('ticket-price').value}`;
+                document.getElementById('summary-payment-account').textContent = document.getElementById('payment-account-details').value;
+            } else {
+                document.getElementById('summary-tickets-available-item').style.display = 'none';
+                document.getElementById('summary-ticket-price-item').style.display = 'none';
+                document.getElementById('summary-payment-account-item').style.display = 'none';
+            }
+
+            // POSTER PREVIEW LOGIC
+            if (eventPosterFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    summaryPosterPreview.src = e.target.result;
+                    summaryPosterPreview.style.display = 'block';
+                    summaryPosterNameText.textContent = eventPosterFile.name;
+                };
+                reader.readAsDataURL(eventPosterFile);
+            } else {
+                summaryPosterPreview.style.display = 'none';
+                summaryPosterNameText.textContent = 'No poster file uploaded.';
+            }
+        }
+
+        async function handleFormSubmission(e) {
+            e.preventDefault();
+            if (currentStep !== 2) return;
+            
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+
+            try {
+                // 1. Upload Poster to Storage
+                const posterURL = await uploadEventPoster();
+
+                // 2. Prepare Data for Firestore
+                const eventData = collectFormData(posterURL);
+
+                // 3. Save Event to Firestore
+                await db.collection("events").add(eventData);
+
+                alert("Event successfully submitted for Crew review!");
+                window.location.href = 'profile.html'; // Redirect to profile to see submitted event list
+
+            } catch (error) {
+                console.error("Event submission failed:", error);
+                alert(`Submission failed: ${error.message}`);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Event';
+            }
+        }
+
+        async function uploadEventPoster() {
+            const user = auth.currentUser;
+            const eventNameSlug = document.getElementById('event-name').value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            
+            const filePath = `event_posters/${user.uid}/${eventNameSlug}-${Date.now()}`;
+            const storageRef = storage.ref(filePath);
+
+            const snapshot = await storageRef.put(eventPosterFile);
+            return snapshot.ref.getDownloadURL();
+        }
+
+        function collectFormData(posterURL) {
+            const targetFacultySelect = document.getElementById('target-faculty');
+            const audienceMembers = document.getElementById('audience-members');
+            const targetFaculties = Array.from(targetFacultySelect.selectedOptions).map(option => option.value);
+            const isPaid = document.querySelector('input[name="ticket-required"]:checked').value === 'true';
+
+            return {
+                name: document.getElementById('event-name').value,
+                date: document.getElementById('event-date').value,
+                time: document.getElementById('event-time').value,
+                location: document.getElementById('event-location').value,
+                category: document.getElementById('event-category').value,
+                hostingFaculty: document.getElementById('hosting-faculty').value,
+                description: document.getElementById('event-description').value,
+                contactNumbers: document.getElementById('contact-numbers').value,
+                
+                audience: {
+                    members: audienceMembers.checked,
+                    guests: document.getElementById('audience-guests').checked,
+                    targetFaculties: audienceMembers.checked ? targetFaculties : []
+                },
+                
+                ticketsRequired: isPaid,
+                
+                // Ticket Details Object 
+                ticketDetails: isPaid ? {
+                    ticketsAvailable: parseInt(document.getElementById('tickets-available').value),
+                    ticketPrice: parseFloat(document.getElementById('ticket-price').value),
+                    paymentAccountDetails: document.getElementById('payment-account-details').value
+                } : null,
+
+                posterURL: posterURL,
+                
+                // Submission metadata
+                status: 'pending', // Pending review by Crew
+                postedByUid: auth.currentUser.uid,
+                submissionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+        }
+
+        // =============================================================
+        // CRITICAL FIX: Use onAuthStateChanged for reliable login check
+        // =============================================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('post-event-form');
+            const nextButton = document.getElementById('next-button');
+            const backButton = document.getElementById('back-button');
             const posterInput = document.getElementById('event-poster');
             const audienceMembers = document.getElementById('audience-members');
             const facultySelectionGroup = document.getElementById('faculty-selection-group');
-            const targetFacultySelect = document.getElementById('target-faculty');
-
-            // --- Initial Checks & Setup ---
-            // NOTE: auth and getCurrentUserRole are assumed to be defined in separate scripts (firebase-config.js and firestore.js)
-            const user = auth.currentUser;
-            if (!user) {
-                alert("You must be logged in to post an event.");
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // 1. Auto-fill Hosting Faculty
-            try {
-                const userProfile = await getCurrentUserRole();
-                if (userProfile && userProfile.faculty) {
-                    document.getElementById('hosting-faculty').value = userProfile.faculty;
-                } else {
-                    document.getElementById('hosting-faculty').value = "N/A - Please contact admin.";
-                    // Optionally disable the form if faculty is mandatory for posting
-                }
-            } catch (error) {
-                console.error("Error loading user faculty:", error);
-                document.getElementById('hosting-faculty').value = "Error loading.";
-            }
-
-            // 2. Event Listeners
-            posterInput.addEventListener('change', (e) => {
-                eventPosterFile = e.target.files[0];
-                document.getElementById('poster-file-name').textContent = eventPosterFile ? eventPosterFile.name : 'No file selected.';
-            });
-
-            // FIX: Ensure faculty dropdown only shows for University Members
-            audienceMembers.addEventListener('change', () => {
-                facultySelectionGroup.style.display = audienceMembers.checked ? 'block' : 'none';
-            });
             
-            // 3. Step Navigation Handlers
-            nextButton.addEventListener('click', () => {
-                if (currentStep === 1 && validateStep1()) {
-                    updateSummary(); // Update summary content before showing step 2
-                    showStep(2);
+            // Ticket Detail elements 
+            const ticketYes = document.getElementById('ticket-yes');
+            const ticketNo = document.getElementById('ticket-no');
+            const ticketDetailsGroup = document.getElementById('ticket-details-group');
+            const ticketsAvailableInput = document.getElementById('tickets-available');
+            const ticketPriceInput = document.getElementById('ticket-price');
+            const paymentAccountDetailsInput = document.getElementById('payment-account-details');
+
+            // Wait for Firebase to check and confirm the user's login state
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    // User is NOT logged in or state is resolved to null
+                    alert("You must be logged in to post an event.");
+                    window.location.href = 'login.html';
+                    return;
                 }
-            });
 
-            backButton.addEventListener('click', () => {
-                if (currentStep === 2) {
-                    showStep(1);
-                }
-            });
+                // --- User IS logged in. Proceed with form setup. ---
 
-            form.addEventListener('submit', handleFormSubmission);
-
-
-            // --- Core Functions ---
-
-            function showStep(step) {
-                document.getElementById(`step-${currentStep}`).classList.remove('active');
-                currentStep = step;
-                document.getElementById(`step-${currentStep}`).classList.add('active');
-                stepDisplay.textContent = `Step ${currentStep} of 2: ${currentStep === 1 ? 'Event Details' : 'Summary & Submit'}`;
-
-                backButton.style.display = currentStep === 2 ? 'block' : 'none';
-                nextButton.style.display = currentStep === 1 ? 'block' : 'none';
-                submitButton.style.display = currentStep === 2 ? 'block' : 'none';
-            }
-
-            function validateStep1() {
-                const step1 = document.getElementById('step-1');
-                const requiredInputs = step1.querySelectorAll('[required]');
-                let isValid = true;
-
-                requiredInputs.forEach(input => {
-                    // Custom validation checks
-                    if (!input.checkValidity() || (input.type === 'file' && !eventPosterFile)) {
-                        isValid = false;
+                // 1. Auto-fill Hosting Faculty
+                try {
+                    const userProfile = await getCurrentUserRole(); 
+                    if (userProfile && userProfile.faculty) {
+                        document.getElementById('hosting-faculty').value = userProfile.faculty;
+                    } else {
+                        document.getElementById('hosting-faculty').value = "N/A - Please contact admin.";
                     }
-                    if (input.type === 'radio' && input.name === 'ticket-required') {
-                        const checked = step1.querySelector('input[name="ticket-required"]:checked');
-                        if (!checked) isValid = false;
+                } catch (error) {
+                    console.error("Error loading user faculty:", error);
+                    document.getElementById('hosting-faculty').value = "Error loading.";
+                }
+
+                // 2. Event Listeners (Setup the form)
+                posterInput.addEventListener('change', (e) => {
+                    eventPosterFile = e.target.files[0];
+                    document.getElementById('poster-file-name').textContent = eventPosterFile ? eventPosterFile.name : 'No file selected.';
+                });
+
+                // FIX: Ensure faculty dropdown only shows for University Members
+                audienceMembers.addEventListener('change', () => {
+                    facultySelectionGroup.style.display = audienceMembers.checked ? 'block' : 'none';
+                });
+                
+                // Conditional Ticket Details Visibility Logic 
+                ticketYes.addEventListener('change', () => {
+                    if (ticketYes.checked) {
+                        ticketDetailsGroup.style.display = 'block';
+                        ticketsAvailableInput.setAttribute('required', 'required');
+                        ticketPriceInput.setAttribute('required', 'required');
+                        paymentAccountDetailsInput.setAttribute('required', 'required');
                     }
                 });
 
-                // Audience checkbox validation
-                const audienceChecked = audienceMembers.checked || document.getElementById('audience-guests').checked;
-                if (!audienceChecked) {
-                    alert("Please select at least one Audience Type.");
-                    isValid = false;
-                }
+                ticketNo.addEventListener('change', () => {
+                    if (ticketNo.checked) {
+                        ticketDetailsGroup.style.display = 'none';
+                        // Remove required attribute when tickets are not needed
+                        ticketsAvailableInput.removeAttribute('required');
+                        ticketPriceInput.removeAttribute('required');
+                        paymentAccountDetailsInput.removeAttribute('required');
+                    }
+                });
+
                 
-                if (!isValid) {
-                    alert("Please fill out all required fields marked with *.");
-                }
+                // 3. Step Navigation Handlers
+                nextButton.addEventListener('click', () => {
+                    if (currentStep === 1 && validateStep1()) {
+                        updateSummary(); // Update summary content before showing step 2
+                        showStep(2);
+                    }
+                });
 
-                return isValid;
-            }
+                backButton.addEventListener('click', () => {
+                    if (currentStep === 2) {
+                        showStep(1);
+                    }
+                });
 
-            function updateSummary() {
-                const name = document.getElementById('event-name').value;
-                const date = document.getElementById('event-date').value;
-                const time = document.getElementById('event-time').value;
-                const location = document.getElementById('event-location').value;
-                const category = document.getElementById('event-category').value;
-                const hostFaculty = document.getElementById('hosting-faculty').value;
-                const contact = document.getElementById('contact-numbers').value;
-                const description = document.getElementById('event-description').value;
-                const ticketRequired = document.querySelector('input[name="ticket-required"]:checked').value === 'true' ? 'Yes' : 'No (Free Entry)';
+                form.addEventListener('submit', handleFormSubmission);
                 
-                const summaryPosterPreview = document.getElementById('summary-poster-preview');
-                const summaryPosterNameText = document.getElementById('summary-poster-name-text');
-
-
-                document.getElementById('summary-name').textContent = name;
-                document.getElementById('summary-datetime').textContent = `${date} at ${time}`;
-                document.getElementById('summary-location').textContent = location;
-                document.getElementById('summary-category').textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                document.getElementById('summary-host-faculty').textContent = hostFaculty;
-                document.getElementById('summary-contact').textContent = contact;
-                document.getElementById('summary-description').textContent = description;
-                document.getElementById('summary-ticket').textContent = ticketRequired;
-                
-                // Audience Summary
-                let audienceTypes = [];
-                if (audienceMembers.checked) audienceTypes.push('University Members');
-                if (document.getElementById('audience-guests').checked) audienceTypes.push('Guests/Public');
-                document.getElementById('summary-audience').textContent = audienceTypes.join(' & ');
-
-                // Target Faculty Summary
-                if (audienceMembers.checked) {
-                    document.getElementById('summary-target-faculty-item').style.display = 'block';
-                    const selectedOptions = Array.from(targetFacultySelect.selectedOptions).map(option => option.text);
-                    document.getElementById('summary-target-faculty').textContent = selectedOptions.join(', ');
-                } else {
-                    document.getElementById('summary-target-faculty-item').style.display = 'none';
-                }
-                
-                // POSTER PREVIEW LOGIC
-                if (eventPosterFile) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        summaryPosterPreview.src = e.target.result;
-                        summaryPosterPreview.style.display = 'block';
-                        summaryPosterNameText.textContent = eventPosterFile.name;
-                    };
-                    reader.readAsDataURL(eventPosterFile);
-                } else {
-                    summaryPosterPreview.style.display = 'none';
-                    summaryPosterNameText.textContent = 'No poster file uploaded.';
-                }
-                // END POSTER PREVIEW LOGIC
-            }
-
-            async function handleFormSubmission(e) {
-                e.preventDefault();
-                if (currentStep !== 2) return;
-                
-                submitButton.disabled = true;
-                submitButton.textContent = 'Submitting...';
-
-                try {
-                    // 1. Upload Poster to Storage
-                    const posterURL = await uploadEventPoster();
-
-                    // 2. Prepare Data for Firestore
-                    const eventData = collectFormData(posterURL);
-
-                    // 3. Save Event to Firestore
-                    await db.collection("events").add(eventData);
-
-                    alert("Event successfully submitted for Crew review!");
-                    window.location.href = 'profile.html'; // Redirect to profile to see submitted event list
-
-                } catch (error) {
-                    console.error("Event submission failed:", error);
-                    alert(`Submission failed: ${error.message}`);
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Submit Event';
-                }
-            }
-
-            async function uploadEventPoster() {
-                const user = auth.currentUser;
-                const eventNameSlug = document.getElementById('event-name').value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                
-                const filePath = `event_posters/${user.uid}/${eventNameSlug}-${Date.now()}`;
-                const storageRef = storage.ref(filePath);
-
-                const snapshot = await storageRef.put(eventPosterFile);
-                return snapshot.ref.getDownloadURL();
-            }
-
-            function collectFormData(posterURL) {
-                const targetFaculties = Array.from(targetFacultySelect.selectedOptions).map(option => option.value);
-
-                return {
-                    name: document.getElementById('event-name').value,
-                    date: document.getElementById('event-date').value,
-                    time: document.getElementById('event-time').value,
-                    location: document.getElementById('event-location').value,
-                    category: document.getElementById('event-category').value,
-                    hostingFaculty: document.getElementById('hosting-faculty').value,
-                    description: document.getElementById('event-description').value,
-                    contactNumbers: document.getElementById('contact-numbers').value,
-                    
-                    audience: {
-                        members: document.getElementById('audience-members').checked,
-                        guests: document.getElementById('audience-guests').checked,
-                        targetFaculties: document.getElementById('audience-members').checked ? targetFaculties : []
-                    },
-                    
-                    ticketsRequired: document.querySelector('input[name="ticket-required"]:checked').value === 'true',
-                    posterURL: posterURL,
-                    
-                    // Submission metadata
-                    status: 'pending', // Pending review by Crew
-                    postedByUid: auth.currentUser.uid,
-                    submissionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-                };
-            }
-            
-            // Initialize view
-            showStep(1);
+                // Initialize view after successful auth check
+                showStep(1);
+            });
         });
     </script>
 </body>
