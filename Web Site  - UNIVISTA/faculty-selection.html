@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVISTA - Crew Faculty Selection</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Crew Selection Page Styles */
+        .crew-selection-page {
+            max-width: 900px;
+            padding: 40px;
+        }
+        .faculty-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .faculty-box {
+            background-color: #f7f7f7;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .faculty-box:hover {
+            transform: scale(1.07);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .faculty-box i {
+            font-size: 44px;
+            margin-bottom: 10px;
+        }
+        .faculty-label {
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            color: #000;
+        }
+        /* Color styles for icons (as provided by you) */
+        .science i { color: #3498db; } .art i { color: #e67e22; } .medicine i { color: #8e44ad; }
+        .law i { color: #16a085; } .management i { color: #f1c40f; } .tech i { color: #1abc9c; }
+        .nursing i { color: #d35400; } .indigenous i { color: #2c3e50; } .education i { color: #9b59b6; }
+        .drama i { color: #e74c3c; } .ucsc i { color: #2980b9; }
+
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="https://cmb.ac.lk/wp-content/uploads/logo-web.png" alt="University Logo" class="university-logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="events.html">Events</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <img src="img/univista-logo.png" alt="UNIVISTA Logo" class="univista-logo">
+        </div>
+    </header>
+
+    <div class="form-container crew-selection-page">
+        <h2>UNIVISTA Event Management Crew Selection</h2>
+        <p>Please select your Faculty to proceed to the crew login page.</p>
+
+        <div class="faculty-container">
+            <div class="faculty-box science" data-faculty="Science"><i class="fas fa-atom"></i><div class="faculty-label">Faculty of Science</div></div>
+            <div class="faculty-box art" data-faculty="Art"><i class="fas fa-palette"></i><div class="faculty-label">Faculty of Art</div></div>
+            <div class="faculty-box medicine" data-faculty="Medicine"><i class="fas fa-stethoscope"></i><div class="faculty-label">Faculty of Medicine</div></div>
+            <div class="faculty-box law" data-faculty="Law"><i class="fas fa-gavel"></i><div class="faculty-label">Faculty of Law</div></div>
+            <div class="faculty-box management" data-faculty="Management & Finance"><i class="fas fa-briefcase"></i><div class="faculty-label">Management & Finance</div></div>
+            <div class="faculty-box tech" data-faculty="Technology"><i class="fas fa-cogs"></i><div class="faculty-label">Faculty of Technology</div></div>
+            <div class="faculty-box nursing" data-faculty="Nursing"><i class="fas fa-user-nurse"></i><div class="faculty-label">Faculty of Nursing</div></div>
+            <div class="faculty-box indigenous" data-faculty="Indigenous Medicine"><i class="fas fa-leaf"></i><div class="faculty-label">Indigenous Medicine</div></div>
+            <div class="faculty-box education" data-faculty="Education"><i class="fas fa-school"></i><div class="faculty-label">Faculty of Education</div></div>
+            <div class="faculty-box drama" data-faculty="Sri Palee Drama"><i class="fas fa-theater-masks"></i><div class="faculty-label">Sri Palee Drama</div></div>
+            <div class="faculty-box ucsc" data-faculty="UCSC"><i class="fas fa-computer"></i><div class="faculty-label">UCSC</div></div>
+        </div>
+
+        <a href="login.html" class="form-link">← Back to User Login</a>
+    </div>
+
+    <footer><p>&copy; 2023 UNIVISTA. All rights reserved.</p></footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const facultyBoxes = document.querySelectorAll('.faculty-box');
+            
+            facultyBoxes.forEach(box => {
+                box.addEventListener('click', () => {
+                    const selectedFaculty = box.getAttribute('data-faculty');
+
+                    if (selectedFaculty) {
+                        // 1. Save the selected faculty name to Session Storage
+                        sessionStorage.setItem('selectedCrewFaculty', selectedFaculty);
+                        
+                        // 2. Redirect to the crew login page
+                        window.location.href = 'crew-login.html';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
