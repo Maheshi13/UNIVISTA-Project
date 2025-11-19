@@ -6,6 +6,19 @@
     <title>UNIVISTA - Crew Login</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        .form-container {
+            /* Keep all your existing styles, but add this: */
+            visibility: hidden; 
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .form-container.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <div class="background-overlay"></div>
@@ -27,9 +40,14 @@
 
     <div class="form-container">
         <h2>UNIVISTA Event Management Crew Login</h2>
+        
+        <p style="font-weight: bold; color: #007bff; margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-university"></i> Logging in for: <span id="faculty-display">[Faculty Name]</span>
+        </p>
+
         <form id="crew-login-form">
             <div class="form-group">
-                <label for="crew-login-email">Username (Faculty Admin Provided)</label>
+                <label for="crew-login-username">Username </label>
                 <input type="text" id="crew-login-username" required>
             </div>
             <div class="form-group">
@@ -38,15 +56,34 @@
             </div>
             <button type="submit" class="form-button">Crew Log In</button>
         </form>
-        <a href="crew-register.html" class="form-link" style="margin-top: 20px;">Crew Registration (Faculty Representatives)</a>
+        
+        <a href="faculty-selection.html" class="form-link" style="margin-top: 20px;">Change Faculty Selection</a>
         <a href="login.html" class="form-link">← Back to User Login</a>
     </div>
 
     <footer><p>&copy; 2023 UNIVISTA. All rights reserved.</p></footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const formContainer = document.querySelector('.form-container'); // Get the container
+            const facultyDisplay = document.getElementById('faculty-display');
+            const selectedFaculty = sessionStorage.getItem('selectedCrewFaculty');
+            
+            if (selectedFaculty) {
+                // Faculty found: Display it and make the form visible
+                facultyDisplay.textContent = selectedFaculty;
+                formContainer.classList.add('visible'); // Show the content
+            } else {
+                // Faculty not found: Immediately redirect back to selection page
+                window.location.href = 'faculty-selection.html'; 
+            }
+        });
+    </script>
 </body>
 </html>
