@@ -2,7 +2,7 @@
 
 // Ensure db, storage, and auth are initialized in firebase-config.js and accessible globally
 if (typeof db === 'undefined' || typeof storage === 'undefined' || typeof auth === 'undefined') {
-    console.error("Firebase Auth, Firestore, or Storage is not initialized correctly.");
+    console.error("Firebase Auth, Firestore, or Storage is not initialized correctly. Check firebase-config.js.");
 }
 
 // =========================================================================
@@ -11,6 +11,7 @@ if (typeof db === 'undefined' || typeof storage === 'undefined' || typeof auth =
 
 /**
  * Gets the current user's profile and role from Firestore.
+ * Uses onAuthStateChanged to reliably wait for the Firebase Auth state.
  * @returns {Promise<object>} A promise that resolves with the user's data (e.g., { role: "user", faculty: "..." }) or { role: "guest" }.
  */
 async function getCurrentUserRole() {
@@ -24,7 +25,8 @@ async function getCurrentUserRole() {
                     if (userDoc.exists) {
                         resolve(userDoc.data()); // Returns { name: "...", role: "user" / "crew", faculty: "..." }
                     } else {
-                        resolve({ role: "user", uid: user.uid, email: user.email }); // Logged in but no user doc found
+                        // User is logged in but the user document is missing. Assign default role.
+                        resolve({ role: "user", uid: user.uid, email: user.email }); 
                     }
                 } catch (error) {
                     unsubscribe();
@@ -39,6 +41,29 @@ async function getCurrentUserRole() {
     });
 }
 window.getCurrentUserRole = getCurrentUserRole;
+
+
+/**
+ * Fetches details for a single event by its ID. Used by event-details.html.
+ * @param {string} eventId - The document ID of the event.
+ * @returns {Promise<object|null>} The event data or null if not found.
+ */
+async function fetchEventDetails(eventId) {
+    try {
+        const doc = await db.collection("events").doc(eventId).get();
+        if (doc.exists) {
+            return { id: doc.id, ...doc.data() };
+        } else {
+            console.error("No event found with ID:", eventId);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching event details:", error);
+        return null;
+    }
+}
+window.fetchEventDetails = fetchEventDetails;
+
 
 // =========================================================================
 // --- 1. USER EVENT SUBMISSION LOGIC (for post-event.html) ---
@@ -62,15 +87,16 @@ async function submitNewEvent(eventData) {
     // 1. Upload Image to Firebase Storage (if provided)
     if (eventData.imageFile) {
         const file = eventData.imageFile;
-        const storageRef = storage.ref(`event_posters/${user.uid}/${Date.now()}_${file.name}`);
+        // Use the user's UID to organize files
+        const storageRef = storage.ref(`event_posters/${user.uid}/${Date.now()}_${file.name}`); 
         const snapshot = await storageRef.put(file);
         imageUrl = await snapshot.ref.getDownloadURL();
     }
 
     // 2. Prepare Firestore Document Data
     const newEvent = {
-        // Core Event Details (using fields from post-event.html)
-        name: eventData.title, 
+        // Core Event Details (Mapping to your expected event structure)
+        name: eventData.title, // Assuming eventData.title maps to event name
         faculty: eventData.faculty,
         description: eventData.description,
         date: eventData.date, 
@@ -78,9 +104,9 @@ async function submitNewEvent(eventData) {
         location: eventData.location,
         postImageUrl: imageUrl,
         
-        // Ticket Details (Mapping isPaid/price from post-event.html)
+        // Ticket Details (Mapping isPaid/price)
         hasTickets: eventData.isPaid,
-        ticketPrice: eventData.price,
+        ticketPrice: parseFloat(eventData.price) || 0,
         availableTickets: 0, // Crew must set availability later
         
         // Approval & Tracking Fields
@@ -134,8 +160,8 @@ window.crewPostApprovedEvent = async function(eventData) {
             audienceType: eventData.audienceType,
             audienceRestriction: eventData.audienceRestriction,
             hasTickets: eventData.hasTickets,
-            ticketPrice: eventData.ticketPrice,
-            availableTickets: eventData.availableTickets,
+            ticketPrice: parseFloat(eventData.ticketPrice) || 0,
+            availableTickets: parseInt(eventData.availableTickets) || 0,
             postImageUrl: imageUrl,
             
             // Approval fields - Crew post is immediately approved
@@ -158,7 +184,7 @@ window.crewPostApprovedEvent = async function(eventData) {
 // =========================================================================
 
 /**
- * Fetches events that are pending approval for the crew's assigned faculty.
+ * Fetches events that are pending approval for the crew's assigned faculty and renders them.
  * @param {string} faculty - The faculty the crew member is assigned to.
  */
 async function fetchPendingEvents(faculty) {
@@ -186,9 +212,12 @@ async function fetchPendingEvents(faculty) {
             const event = doc.data();
             const eventId = doc.id;
             
+            // Fallback for name/title to be more robust
+            const eventName = event.name || event.title || 'Untitled Event';
+
             html += `
-                <li class="approval-item">
-                    <h4>${event.name || event.title} (${event.faculty})</h4>
+                <li class="approval-item" data-id="${eventId}">
+                    <h4>${eventName} (${event.faculty})</h4>
                     <p>Submitted by: ${event.postedByName || 'N/A'}</p>
                     <p>Date: ${event.date} | Location: ${event.location}</p>
                     <button onclick="approveEvent('${eventId}')" class="approve-btn">Approve</button>
@@ -236,11 +265,17 @@ function approveEvent(eventId) {
         status: 'approved',
         approvedBy: user.uid,
         approvalTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        // Ensure availableTickets is set to a non-zero value upon approval if tickets are required.
+        // For now, setting a high default (100) or relying on crew to manually update.
+        availableTickets: firebase.firestore.FieldValue.serverTimestamp() ? 100 : 0, 
         rejectionReason: firebase.firestore.FieldValue.delete() 
     })
     .then(() => {
         alert(`Event ID ${eventId} approved and is now live!`);
-        // Note: The UI refresh is typically handled by re-calling fetchPendingEvents or using onSnapshot.
+        // Remove the item from the list visually
+        const listItem = document.querySelector(`.approval-item[data-id="${eventId}"]`);
+        if(listItem) listItem.remove();
+        // A better approach is to re-call fetchPendingEvents, but for this structure, removing the element is fine.
     })
     .catch(error => {
         console.error("Error approving event:", error);
@@ -255,21 +290,29 @@ window.approveEvent = approveEvent;
  * @param {string} reason - The reason for rejection.
  */
 function rejectEvent(eventId, reason) {
-    if (!reason) {
+    if (!reason || reason.trim() === '') {
         alert("Rejection reason is required.");
         return;
     }
     const user = auth.currentUser;
+    if (!user) {
+        alert("Authentication error. Please log in again.");
+        return;
+    }
+
     const eventRef = db.collection("events").doc(eventId);
 
     eventRef.update({
         status: 'rejected',
-        approvedBy: user.uid,
-        rejectionReason: reason,
+        approvedBy: user.uid, // The user who performed the rejection
+        rejectionReason: reason.trim(),
         approvalTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
     })
     .then(() => {
         alert(`Event ID ${eventId} rejected. Reason saved.`);
+        // Remove the item from the list visually
+        const listItem = document.querySelector(`.approval-item[data-id="${eventId}"]`);
+        if(listItem) listItem.remove();
     })
     .catch(error => {
         console.error("Error rejecting event:", error);
@@ -298,6 +341,7 @@ async function fetchAndDisplayEvents(filters = {}) {
     
     // Apply Filters
     if (filters.faculty && filters.faculty !== 'all') {
+        // Query for events hosted by the selected faculty OR marked as University Wide
         eventsRef = eventsRef.where('faculty', 'in', [filters.faculty, 'University Wide']);
     }
     
@@ -312,29 +356,32 @@ async function fetchAndDisplayEvents(filters = {}) {
     
     try {
         const snapshot = await eventsRef.get();
+        const eventCardsHtml = [];
+
         if (snapshot.empty) {
             eventsList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No upcoming events found.</p>';
             return;
         }
 
-        eventsList.innerHTML = '';
         snapshot.forEach(doc => {
             const event = doc.data();
-            const isFree = event.hasTickets === false || event.ticketPrice === 0;
+            const isFree = event.hasTickets === false || parseFloat(event.ticketPrice) === 0;
             const priceText = isFree ? 'Free' : `Rs. ${parseFloat(event.ticketPrice || 0).toFixed(2)}`;
+            const eventName = event.name || event.title || 'Untitled Event';
             
-            const eventCard = `
+            eventCardsHtml.push(`
                 <div class="event-card" data-category="${event.category || ''}" data-faculty="${event.faculty}">
-                    <img src="${event.postImageUrl || 'https://via.placeholder.com/300x200?text=UNIVISTA+Event'}" alt="${event.name || event.title}">
-                    <h3>${event.name || event.title}</h3>
+                    <img src="${event.postImageUrl || 'https://via.placeholder.com/300x200?text=UNIVISTA+Event'}" alt="${eventName}">
+                    <h3>${eventName}</h3>
                     <p>Date: ${event.date} | Time: ${event.time}</p>
                     <p>Location: ${event.location}</p>
                     <p class="event-price">Ticket: ${priceText}</p>
                     <button class="view-details-button" onclick="window.location.href='event-details.html?id=${doc.id}'">View Details</button>
                 </div>
-            `;
-            eventsList.innerHTML += eventCard;
+            `);
         });
+
+        eventsList.innerHTML = eventCardsHtml.join('');
 
     } catch (error) {
         eventsList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Error loading events.</p>';
@@ -346,29 +393,34 @@ window.fetchAndDisplayEvents = fetchAndDisplayEvents;
 
 /**
  * Renders the top 3 upcoming events on the homepage.
- * NOTE: This function requires a separate, efficient query for approved events. 
- * For simplicity, you can call fetchAndDisplayEvents and reuse the data if available.
+ * NOTE: This relies on fetchAndDisplayEvents being run first, or you can implement 
+ * a separate query here to grab the data.
  */
-// This function remains a basic template. You should implement the fetching logic if needed.
+// This function remains a basic template and should be called after fetching data.
 function renderEventsToHomepage(events) {
     const upcomingContainer = document.getElementById('upcoming-events-container'); 
     if (!upcomingContainer) return;
 
-    if (events.length === 0) {
-        upcomingContainer.innerHTML = '<p>No upcoming events at this time.</p>';
+    // Filter to only include approved events before slicing
+    const approvedEvents = (events || []).filter(e => e.status === 'approved');
+
+    if (approvedEvents.length === 0) {
+        upcomingContainer.innerHTML = '<h2>Upcoming Events</h2><p>No upcoming events at this time.</p>';
         return;
     }
     
-    upcomingContainer.innerHTML = '<h2>Upcoming Events</h2>';
-    events.slice(0, 3).forEach(event => {
-        const eventCard = `
+    let html = '<h2>Upcoming Events</h2>';
+    approvedEvents.slice(0, 3).forEach(event => {
+        const eventName = event.name || event.title || 'Untitled Event';
+        html += `
             <div class="upcoming-event-card">
-                <h3>${event.name || event.title}</h3>
+                <h3>${eventName}</h3>
                 <p>${event.faculty} - ${event.date}</p>
+                <button onclick="window.location.href='event-details.html?id=${event.id}'">Details</button>
             </div>
         `;
-        upcomingContainer.innerHTML += eventCard;
     });
+    upcomingContainer.innerHTML = html;
 }
 window.renderEventsToHomepage = renderEventsToHomepage;
 
@@ -379,13 +431,16 @@ window.renderEventsToHomepage = renderEventsToHomepage;
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- File upload handler (Kept from your original file) ---
+    // --- File upload handler (for post-event.html) ---
     const fileUploadBox = document.getElementById('file-upload-box');
     const eventPostImageInput = document.getElementById('event-post-image');
     const fileNameDisplay = document.getElementById('file-name-display');
 
-    if (fileUploadBox) {
-        fileUploadBox.addEventListener('click', () => eventPostImageInput.click());
+    if (fileUploadBox && eventPostImageInput && fileNameDisplay) {
+        // Standard click handler
+        fileUploadBox.addEventListener('click', () => eventPostImageInput.click()); 
+
+        // Drag and Drop Handlers
         fileUploadBox.addEventListener('dragover', (e) => { e.preventDefault(); fileUploadBox.classList.add('dragover'); });
         fileUploadBox.addEventListener('dragleave', () => fileUploadBox.classList.remove('dragover'));
         fileUploadBox.addEventListener('drop', (e) => {
@@ -396,11 +451,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 fileNameDisplay.textContent = eventPostImageInput.files[0].name;
             }
         });
+
+        // File Selection Handler
         eventPostImageInput.addEventListener('change', () => {
             if (eventPostImageInput.files.length) {
                 fileNameDisplay.textContent = eventPostImageInput.files[0].name;
             } else {
-                fileNameDisplay.textContent = '';
+                fileNameDisplay.textContent = 'Drag & Drop or Click to Upload Image';
             }
         });
     }
@@ -415,9 +472,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = auth.currentUser;
             const userId = user ? user.uid : 'GUEST_' + Math.random().toString(36).substr(2, 9);
 
-            const count = parseInt(document.getElementById('booking-count').value);
-            const totalDue = parseFloat(document.getElementById('total-payment-display').textContent);
+            const count = parseInt(document.getElementById('booking-count').value, 10);
             
+            // CRITICAL: Recalculate total price based on ticket price displayed on the page
+            const ticketPriceElement = document.getElementById('ticket-price-display');
+            const priceMatch = ticketPriceElement ? ticketPriceElement.textContent.match(/Rs\. ([\d.]+)/) : null;
+            const unitPrice = priceMatch ? parseFloat(priceMatch[1]) : 0;
+            const totalDue = count * unitPrice;
+
+            // Update the display element before moving to payment
+            const totalPaymentDisplay = document.getElementById('total-payment-display');
+            if (totalPaymentDisplay) {
+                totalPaymentDisplay.textContent = totalDue.toFixed(2);
+            }
+
             window.bookingDetails = {
                 email: document.getElementById('booking-email').value,
                 name: document.getElementById('booking-name').value,
@@ -429,9 +497,18 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // Move to Step 3: Payment
-            document.getElementById('event-step-2-booking').classList.add('hidden');
-            document.getElementById('event-step-3-payment').classList.remove('hidden');
-            document.getElementById('payment-due-display').textContent = totalDue.toFixed(2);
+            const step2 = document.getElementById('event-step-2-booking');
+            const step3 = document.getElementById('event-step-3-payment');
+            const paymentDueDisplay = document.getElementById('payment-due-display');
+
+            if (step2 && step3 && paymentDueDisplay) {
+                step2.classList.add('hidden');
+                step3.classList.remove('hidden');
+                paymentDueDisplay.textContent = totalDue.toFixed(2);
+            } else {
+                 console.error("Missing UI elements for payment step.");
+                 alert("A critical part of the payment UI is missing. Cannot proceed.");
+            }
         });
     }
 
@@ -441,7 +518,13 @@ document.addEventListener('DOMContentLoaded', () => {
         paymentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // **DUMMY PAYMENT COMPLETE**
+            // Check if booking details are available from step 2
+            if (!window.bookingDetails || !window.bookingDetails.eventId) {
+                alert("Booking details are missing. Please start over.");
+                window.location.reload(); 
+                return;
+            }
+
             alert("Dummy payment processing complete.");
 
             try {
@@ -456,8 +539,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const eventDoc = await transaction.get(eventRef);
                     if (!eventDoc.exists) throw new Error("Event does not exist!");
                     
-                    const newAvailable = (eventDoc.data().availableTickets || 0) - count;
-                    if (newAvailable < 0) throw new Error("Not enough tickets available!");
+                    const currentAvailable = eventDoc.data().availableTickets || 0;
+
+                    // Ensure tickets are still available
+                    if (currentAvailable < count) {
+                         throw new Error(`Only ${currentAvailable} ticket(s) remaining. Cannot book ${count}.`);
+                    }
+
+                    const newAvailable = currentAvailable - count;
                     
                     // Update available tickets
                     transaction.update(eventRef, { availableTickets: newAvailable });
@@ -470,26 +559,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     userId: userId, // CRITICAL: Link the ticket to the user/guest ID
                     userEmail: email,
                     userName: name,
+                    userPhone: phone,
                     ticketCount: count,
                     amountPaid: total,
                     paymentStatus: 'paid',
-                    qrCodeData: ticketId,
+                    qrCodeData: ticketId, // Simple data for QR code generation
                     bookedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 // 4. Update UI to Confirmation (Step 4)
-                document.getElementById('event-step-3-payment').classList.add('hidden');
-                document.getElementById('event-step-4-confirmation').classList.remove('hidden');
-                document.getElementById('confirmed-email').textContent = email;
-                document.getElementById('ticket-id-display').textContent = ticketId;
+                const step3 = document.getElementById('event-step-3-payment');
+                const step4 = document.getElementById('event-step-4-confirmation');
+
+                if (step3 && step4) {
+                    step3.classList.add('hidden');
+                    step4.classList.remove('hidden');
+                    document.getElementById('confirmed-email').textContent = email;
+                    document.getElementById('ticket-id-display').textContent = ticketId;
+                    
+                    // TODO: Implement QR Code Generation here using the ticketId
+                    // E.g., new QRCode(document.getElementById('qr-code-display'), ticketId);
+
+                } else {
+                     alert("Booking succeeded, but confirmation UI failed to load.");
+                }
                 
 
             } catch (error) {
                 alert(`Booking Failed: ${error.message}`);
                 console.error("Booking Error:", error);
                 // On failure, revert back to the beginning step 
-                document.getElementById('event-step-3-payment').classList.add('hidden');
-                document.getElementById('event-step-1-details').classList.remove('hidden');
+                const step3 = document.getElementById('event-step-3-payment');
+                const step1 = document.getElementById('event-step-1-details');
+                if (step3 && step1) {
+                     step3.classList.add('hidden');
+                     step1.classList.remove('hidden');
+                }
             }
         });
     }
