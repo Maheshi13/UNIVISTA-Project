@@ -16,10 +16,9 @@
             <nav id="main-nav">
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
                     <li><a href="main.html">Events</a></li>
-                    <li><a href="profile.html">Profile</a></li>
-                </ul>
+                    <li><a href="about.html">About</a></li>
+                    </ul>
             </nav>
         </div>
         
@@ -154,7 +153,6 @@
                 document.getElementById('my-tickets-btn').onclick = showBookedTickets;
                 
                 // 5. Load calendar data (to mark dates)
-                // We'll run this in the background as it's not critical for UI loading
                 loadCalendarMarkings(user.uid); 
 
             } catch (error) {
@@ -255,18 +253,10 @@
         }
 
         /**
-         * Loads calendar markings (Optional: highly complex with basic HTML). 
-         * For simplicity, this function is a placeholder. A full calendar library 
-         * (like FullCalendar) is recommended for real date marking.
+         * Loads calendar markings (Placeholder). 
          */
         async function loadCalendarMarkings(userId) {
-            // Placeholder: Logic to fetch event dates is complex without a library.
-            // For now, the calendar widget is static, matching the image.
-            
-            // To implement fully:
-            // 1. Fetch all future booked/submitted event dates.
-            // 2. Iterate through the static .calendar-grid divs and add a 'marked' class 
-            //    to dates that match the fetched event dates.
+            // Placeholder for future implementation
         }
 
 
