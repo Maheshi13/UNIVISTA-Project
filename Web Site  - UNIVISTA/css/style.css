@@ -445,14 +445,15 @@ footer {
     display: none !important;
 }
 
-/* Calendar Styling (basic) */
-.calendar-container {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 40px;
+/* --- New Calendar Widget Styles (for profile.html) --- */
+.calendar-widget {
+    background-color: #ffffff;
+    padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-top: 50px;
-    color: #333;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    text-align: center;
+    border: 1px solid #eee;
 }
 
 .calendar-header {
@@ -460,40 +461,95 @@ footer {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #007bff;
 }
 
-.calendar-header button {
-    background-color: #007bff;
-    color: white;
+.calendar-header .nav-btn {
+    background: none;
     border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
+    font-size: 1.5rem;
     cursor: pointer;
+    color: #333;
+    padding: 5px 10px;
+    transition: color 0.2s;
+}
+
+.calendar-header .nav-btn:hover {
+    color: #007bff;
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    text-align: center;
     gap: 5px;
 }
 
-.calendar-grid div {
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f0f0f0;
+.day-label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #6c757d;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
 }
 
-.calendar-grid .day-name {
-    font-weight: bold;
-    background-color: #e0e0e0;
+.date-cell {
+    padding: 8px 0;
+    text-align: center;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    cursor: default;
 }
 
-.calendar-grid .date.has-event {
+.date-cell.empty {
+    /* Hide empty cells for padding */
+    visibility: hidden; 
+}
+
+/* Highlight today's date */
+.date-cell.today {
+    background-color: #e6f0ff;
+    color: #007bff;
+    font-weight: 700;
+    border: 1px solid #007bff;
+}
+
+/* Highlight dates with events (placeholder class) */
+.date-cell.marked {
     background-color: #f0a04b;
     color: white;
-    font-weight: bold;
+    font-weight: 700;
+    position: relative;
+}
+.date-cell.marked::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.my-tickets-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    width: 100%;
     cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: 600;
+}
+
+.my-tickets-btn:hover {
+    background-color: #1e7e34;
 }
 
 /* Event Details Page */
