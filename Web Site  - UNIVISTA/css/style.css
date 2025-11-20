@@ -110,7 +110,7 @@ body {
 }
 
 .univista-logo {
-    height: 60px; /* Adjust as needed */
+    height: 80px; /* Adjust as needed */
     border-radius: 50%; /* If it's a circular logo */
 }
 
@@ -1351,3 +1351,4 @@ footer {
     background-color: #f7f7ff;
     border: 1px solid #cfe2ff;
 }
+
