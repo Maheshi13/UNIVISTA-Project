@@ -1,0 +1,605 @@
+/* General Body Styling */
+/* Basic styling for the section */
+    .past-events-section {
+        margin: 40px 0;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    /* Grid layout for the video cards */
+    .past-events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        /*justify-content: center;*/
+        align-items: left;
+        /*padding: 20px;*/
+    }
+    
+    /* Styling for each video card */
+    .past-event-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: transform 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .past-event-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    /* Styling for the video elements */
+    .past-event-card video {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 2px solid #fff;
+    }
+
+    .past-event-card h4 {
+        margin-top: 10px;
+        color: #fff;
+        font-size: 1.2em;
+    }
+
+    .footer-background {
+    background-color: #3c1f1f; 
+    padding: 50px 0; 
+     
+    }
+
+
+
+
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f4f4f4;
+    color: #363434;
+}
+/* --- Splash Screen Styles --- */
+#splash-screen {
+    position: fixed; /* Fixed position to cover entire viewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('image/pic.jpg') no-repeat center center/cover; /* Your splash screen background image */
+    display: flex; /* Use flexbox to center content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    background-color: #000; /* Fallback background color if image fails */
+    z-index: 9999; /* Ensure it's on top of everything else */
+    color: white; /* Text color */
+    text-align: center;
+    opacity: 1; /* Start fully opaque */
+    transition: visibility 1s ease-out, transform 1s ease-out;
+}
+
+/* Keyframes for the vertical movement animation */
+@keyframes splashVerticalMove {
+    0% { transform: translateY(-20px) scale(1); } /* Start slightly above and normal size */
+    50% { transform: translateY(0) scale(1.03); } /* Move to center and slightly zoom in */
+    100% { transform: translateY(0) scale(1); } /* End at center and normal size */
+}
+
+#splash-screen .splash-content {
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay for text readability */
+    border-radius: 10px;
+}
+
+#splash-screen h1 {
+    font-size: 4em; /* Large font size for UNIVISTA */
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Optional: text shadow for better visibility */
+}
+
+/* Hide the image tag inside the splash-screen as background is via CSS */
+#splash-screen img {
+    display: none;
+}
+
+/* Class added by JavaScript to trigger the fade-out */
+.splash-fade-out {
+    opacity: 0; /* Fade to transparent */
+    pointer-events: none; /* Make it unclickable after fade starts */
+    visibility: hidden;
+    transform: translateY(-100%);
+
+}
+.search-bar button .search-icon {
+    height: 18px; /* Adjust size as needed */
+    width: auto;
+    /* You might need to adjust button padding if the image is too big */
+}
+/* Container for Login/Register Pages */
+.register-container, .login-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.register-container .logo, .login-container .logo {
+    margin-bottom: 20px;
+}
+
+.register-container .logo img, .login-container .logo img {
+    width: 100px;
+    height: 100px;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.register-container .logo h1, .login-container .logo h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.register-container form, .login-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.register-container label, .login-container label {
+    text-align: left;
+    font-weight: bold;
+}
+
+.register-container input[type="text"],
+.register-container input[type="email"],
+.register-container input[type="password"],
+.login-container input[type="email"],
+.login-container input[type="password"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.register-button, .login-button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.register-button:hover, .login-button:hover {
+    background-color: #0056b3;
+}
+
+.login-link, .register-link, .forgot-password {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.login-link a, .register-link a, .forgot-password a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.login-link a:hover, .register-link a:hover, .forgot-password a:hover {
+    text-decoration: underline;
+}
+
+/* Homepage Specific Styles */
+.main-header {
+    background: linear-gradient(to right, #3b0f0fec, #969688); 
+    color: rgb(36, 33, 33);
+    padding: 50px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    
+    
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+}
+
+.uoc-logo img {
+    height: 200px; /* Adjust as needed */
+    margin-right: 20px;
+}
+
+.main-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.main-nav ul li {
+    position: relative;
+    margin-right: 20px;
+}
+
+.main-nav ul li a {
+    color: rgb(237, 229, 229);
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.main-nav ul li a:hover, .dropbtn:hover {
+    background-color: #4e0909;
+    border-radius: 4px;
+}
+
+/* Dropdown for Events */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.search-bar input {
+    padding: 8px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+}
+
+.search-bar button {
+    background-color: #4e0909; /* Blue for search button */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.unavista-logo-header {
+    display: flex;
+    align-items: center;
+    /*margin-right: 20px;*/
+}
+
+/* For the homepage header logo */
+.unavista-logo-header img {
+    height: 100px; /* or whatever size it is */
+    width: 100px; /* Ensure width is same as height for a circle */
+    margin-right: 10px;
+    margin-left: 10px;
+    border-radius: 50%; /* This makes a square image into a circle */
+    /* If your image already has transparency and is oval, you might not need this */
+}
+
+/* For the logos on register/login pages */
+.register-container .logo img,
+.login-container .logo img {
+    width: 100px; /* or desired size */
+    height: 100px; /* Ensure width is same as height for a circle */
+    display: block;
+    margin: auto;
+    border-radius: 50%; /* This makes a square image into a circle */
+    text-align: center;
+}
+
+.unavista-logo-header h1 {
+    font-size: 20px;
+    margin: 20px;
+    text-align: center;
+}
+
+/* Update these existing styles for a 3D effect */
+.login-button-header,
+.logout-button-header {
+    /* Existing styles - make sure these are present */
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white; /* Text color */
+    font-weight: bold; /* Make text bold for better visibility */
+    display: inline-block; /* Essential for padding/margin on anchor tags */
+    text-align: center;
+    cursor: pointer; /* Indicate it's clickable */
+
+    /* 3D Effect Properties */
+    position: relative; /* Needed for the bottom shadow positioning */
+    border: none; /* Remove default button border if it were a <button> */
+    outline: none; /* Remove outline on focus */
+
+    /* Initial 'top' shadow for 3D look */
+    box-shadow: 0 5px 0 0 rgba(0, 0, 0, 0.2), /* Bottom "depth" shadow */
+                0 0 0 1px rgba(0, 0, 0, 0.1); /* Subtle border-like shadow */
+
+    /* Smooth transitions for all relevant properties */
+    transition: background-color 0.2s ease-out,
+                box-shadow 0.2s ease-out,
+                transform 0.2s ease-out;
+}
+
+/* Specific background colors for login and logout */
+.login-button-header {
+    background-color: #730c0c; /* Green for Login */
+}
+
+.logout-button-header {
+    background-color: #dc3545; /* Red for Logout */
+}
+
+/* Hover effect for 3D button */
+.login-button-header:hover,
+.logout-button-header:hover {
+    /* Subtle darken of background on hover */
+    filter: brightness(1.1); /* Slightly brighter on hover */
+    box-shadow: 0 6px 0 0 rgba(0, 0, 0, 0.25), /* Slightly deeper shadow on hover */
+                0 0 0 1px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px); /* Little lift effect */
+}
+
+
+/* Active (click) effect for 3D button - makes it look "pressed" */
+.login-button-header:active,
+.logout-button-header:active {
+    transform: translateY(3px); /* Move button down */
+    box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.2), /* Reduce bottom shadow */
+                0 0 0 1px rgba(0, 0, 0, 0.05); /* Lighter border-like shadow */
+    filter: brightness(0.9); /* Slightly darker on click */
+}
+
+
+/* Apply the animation class */
+.jump-animation {
+    animation: horizontalJump 0.4s ease-in-out;
+}
+
+.hero-section {
+    /*background: url('image/bg1.jpg') no-repeat center center/cover;  Your new background image */
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+    min-height: 400px; /* Adjust height as needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* For overlay */
+} 
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+}
+
+.hero-content h2 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+
+
+
+
+.upcoming-events-section, .past-events-section {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.upcoming-events-section h3, .past-events-section h3 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #fef4f4;
+}
+
+.events-grid, .past-events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.event-card {
+    background-color: #4CAF50; /* Green for upcoming events */
+    color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgb(46, 45, 45);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+}
+
+.event-card h4 {
+    font-size: 24px;
+    margin-top: 0;
+}
+
+.event-card .book-now {
+    background-color: #DC3545; /* Red for Book Now */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    align-self: flex-end; /* Align button to bottom-right */
+}
+
+.event-card .book-now:hover {
+    background-color: #C82333;
+}
+
+.past-event-card {
+    background-color: #65090c; /* Purple for past events */
+    color: white;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgb(60, 59, 59);
+    min-height: 150px;
+    display: flex;
+    align-items: left;
+    justify-content: center;
+}
+
+.past-event-card h4 {
+    font-size: 22px;
+    margin: 0;
+}
+
+#no-upcoming-events {
+    margin-top: 30px;
+    font-style: italic;
+    color: #666;
+}
+
+.main-footer {
+    background-color: #333;
+    color: white;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.social-media, .contact-info {
+    text-align: center;
+}
+
+.social-media h4, .contact-info h4 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.social-media a img {
+    height: 40px;
+    margin: 0 10px;
+}
+
+.contact-info p {
+    margin: 5px 0;
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .header-left, .header-right {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .main-nav ul {
+        flex-direction: column;
+        margin-top: 10px;
+    }
+
+    .main-nav ul li {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .search-bar, .unavista-logo-header, .login-button-header {
+        margin-top: 15px;
+    }
+
+    .hero-content h2 {
+        font-size: 36px;
+    }
+
+    .events-grid, .past-events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .main-footer {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Add this to your style.css file */
+
+/* Keyframes for the horizontal jump animation */
+@keyframes horizontalJump {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(5px); } /* Move right */
+    50% { transform: translateX(-5px); } /* Move left */
+    75% { transform: translateX(5px); } /* Move right again */
+    100% { transform: translateX(0); } /* Back to original position */
+}
+
+/* Class to apply the animation */
+.jump-animation {
+    animation: horizontalJump 0.6s ease-in-out; 
+}
+
+/* Existing styles for the login/logout button (ensure transition is smooth) */
+.login-button-header, .logout-button-header {
+    /* Add a transition for transform to make the movement smoother if not already present */
+    transition: background-color 0.3s ease, transform 0.1s ease-in-out;
+}
