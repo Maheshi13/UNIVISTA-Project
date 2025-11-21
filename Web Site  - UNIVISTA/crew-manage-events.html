@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVISTA - Crew Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .manage-events-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .event-review-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex; /* Use flexbox to align poster, details, and actions */
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px; /* Space between flex items */
+        }
+        .event-poster-preview {
+            width: 150px; /* Fixed width for the image */
+            height: 150px;
+            overflow: hidden;
+            border-radius: 5px;
+            flex-shrink: 0; /* Prevents shrinking */
+            background-color: #eee;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .event-poster-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the area */
+        }
+        .event-details {
+            flex-grow: 1;
+        }
+        .event-actions button {
+            padding: 8px 15px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .approve-btn { background-color: #2ecc71; color: white; }
+        .reject-btn { background-color: #e74c3c; color: white; }
+        .approve-btn:hover { background-color: #27ae60; }
+        .reject-btn:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="https://cmb.ac.lk/wp-content/uploads/logo-web.png" alt="University Logo" class="university-logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><button id="logout-button" class="login-button">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <img src="img/univista-logo.png" alt="UNIVISTA Logo" class="univista-logo">
+        </div>
+    </header>
+
+    <main class="manage-events-container">
+        <h1 id="faculty-title">Managing Pending Events</h1>
+        <p>Review and decide on event submissions for the <strong id="assigned-faculty-name">...</strong>.</p>
+        
+        <div id="pending-events-list">
+            <p>Loading pending events...</p>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2023 UNIVISTA. All rights reserved.</p></footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Note: We are relying on window.db and window.auth being exposed in firebase-config.js and auth.js
+            const db = window.db;
+            const auth = window.auth; // Ensure auth is available for 'reviewedBy' field
+            const eventList = document.getElementById('pending-events-list');
+            const facultyNameDisplay = document.getElementById('assigned-faculty-name');
+            const urlParams = new URLSearchParams(window.location.search);
+            const assignedFaculty = urlParams.get('faculty');
+
+            if (!assignedFaculty) {
+                eventList.innerHTML = '<p style="color: red;">Error: No faculty specified. Please return to the Crew Dashboard.</p>';
+                return;
+            }
+
+            facultyNameDisplay.textContent = assignedFaculty;
+
+            // --- Firestore Fetch Function ---
+            async function fetchPendingEvents(faculty) {
+                eventList.innerHTML = '<p>Loading pending events...</p>';
+                try {
+                    // Query for events that are PENDING and match the crew's FACULTY
+                    const querySnapshot = await db.collection('events')
+                        .where('status', '==', 'pending')
+                        .where('faculty', '==', faculty)
+                        .orderBy('timestamp', 'asc')
+                        .get();
+
+                    if (querySnapshot.empty) {
+                        eventList.innerHTML = `<p>No pending events found for ${faculty}.</p>`;
+                        return;
+                    }
+
+                    eventList.innerHTML = ''; // Clear loading message
+
+                    querySnapshot.forEach(doc => {
+                        const event = doc.data();
+                        const eventId = doc.id;
+                        
+                        // Construct the image tag or a fallback message
+                        const posterHtml = event.posterURL 
+                            ? `<img src="${event.posterURL}" alt="Event Poster for ${event.title}">` 
+                            : `<p style="text-align: center; font-size: 10px; color: #777;">No Poster Uploaded</p>`;
+
+                        const card = document.createElement('div');
+                        card.className = 'event-review-card';
+                        card.innerHTML = `
+                            <div class="event-poster-preview">
+                                ${posterHtml}
+                            </div>
+                            <div class="event-details">
+                                <h4>${event.title}</h4>
+                                <p><strong>Date:</strong> ${event.date ? new Date(event.date.seconds * 1000).toLocaleString() : 'N/A'}</p>
+                                <p><strong>Location:</strong> ${event.location}</p>
+                                <p><strong>Posted By:</strong> ${event.postedBy}</p>
+                                <p><strong>Description:</strong> ${event.description ? event.description.substring(0, 100) + '...' : 'N/A'}</p>
+                            </div>
+                            <div class="event-actions">
+                                <button class="approve-btn" data-id="${eventId}">Approve</button>
+                                <button class="reject-btn" data-id="${eventId}">Reject</button>
+                            </div>
+                        `;
+                        eventList.appendChild(card);
+                    });
+                    
+                    // Attach Action Handlers
+                    document.querySelectorAll('.approve-btn').forEach(btn => {
+                        btn.addEventListener('click', () => updateEventStatus(btn.dataset.id, 'approved', assignedFaculty));
+                    });
+                    document.querySelectorAll('.reject-btn').forEach(btn => {
+                        btn.addEventListener('click', () => updateEventStatus(btn.dataset.id, 'rejected', assignedFaculty));
+                    });
+
+                } catch (error) {
+                    console.error("Error fetching pending events:", error);
+                    eventList.innerHTML = '<p style="color: red;">Failed to load events. Check console for details.</p>';
+                }
+            }
+            
+            // --- Firestore Update Function (Approval/Rejection) ---
+            async function updateEventStatus(eventId, newStatus, faculty) {
+                if (!confirm(`Are you sure you want to ${newStatus} this event?`)) {
+                    return;
+                }
+                
+                // Ensure a user is logged in to record who reviewed it
+                const reviewerUid = auth.currentUser ? auth.currentUser.uid : 'anonymous';
+
+                try {
+                    const eventRef = db.collection('events').doc(eventId);
+                    await eventRef.update({ 
+                        status: newStatus,
+                        reviewTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        reviewedBy: reviewerUid
+                    });
+
+                    alert(`Event ${eventId} has been ${newStatus}.`);
+                    // Refresh the list after update
+                    fetchPendingEvents(faculty); 
+
+                } catch (error) {
+                    console.error(`Error updating event status to ${newStatus}:`, error);
+                    alert(`Failed to update event status: ${error.message}`);
+                }
+            }
+
+            // Start loading events
+            fetchPendingEvents(assignedFaculty);
+
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVISTA - Crew Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .manage-events-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .event-review-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex; /* Use flexbox to align poster, details, and actions */
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px; /* Space between flex items */
+        }
+        .event-poster-preview {
+            width: 150px; /* Fixed width for the image */
+            height: 150px;
+            overflow: hidden;
+            border-radius: 5px;
+            flex-shrink: 0; /* Prevents shrinking */
+            background-color: #eee;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .event-poster-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the area */
+        }
+        .event-details {
+            flex-grow: 1;
+        }
+        .event-actions button {
+            padding: 8px 15px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .approve-btn { background-color: #2ecc71; color: white; }
+        .reject-btn { background-color: #e74c3c; color: white; }
+        .approve-btn:hover { background-color: #27ae60; }
+        .reject-btn:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="https://cmb.ac.lk/wp-content/uploads/logo-web.png" alt="University Logo" class="university-logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><button id="logout-button" class="login-button">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <img src="img/univista-logo.png" alt="UNIVISTA Logo" class="univista-logo">
+        </div>
+    </header>
+
+    <main class="manage-events-container">
+        <h1 id="faculty-title">Managing Pending Events</h1>
+        <p>Review and decide on event submissions for the <strong id="assigned-faculty-name">...</strong>.</p>
+        
+        <div id="pending-events-list">
+            <p>Loading pending events...</p>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2023 UNIVISTA. All rights reserved.</p></footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Note: We are relying on window.db and window.auth being exposed in firebase-config.js and auth.js
+            const db = window.db;
+            const auth = window.auth; // Ensure auth is available for 'reviewedBy' field
+            const eventList = document.getElementById('pending-events-list');
+            const facultyNameDisplay = document.getElementById('assigned-faculty-name');
+            const urlParams = new URLSearchParams(window.location.search);
+            const assignedFaculty = urlParams.get('faculty');
+
+            if (!assignedFaculty) {
+                eventList.innerHTML = '<p style="color: red;">Error: No faculty specified. Please return to the Crew Dashboard.</p>';
+                return;
+            }
+
+            facultyNameDisplay.textContent = assignedFaculty;
+
+            // --- Firestore Fetch Function ---
+            async function fetchPendingEvents(faculty) {
+                eventList.innerHTML = '<p>Loading pending events...</p>';
+                try {
+                    // Query for events that are PENDING and match the crew's FACULTY
+                    const querySnapshot = await db.collection('events')
+                        .where('status', '==', 'pending')
+                        .where('faculty', '==', faculty)
+                        .orderBy('timestamp', 'asc')
+                        .get();
+
+                    if (querySnapshot.empty) {
+                        eventList.innerHTML = `<p>No pending events found for ${faculty}.</p>`;
+                        return;
+                    }
+
+                    eventList.innerHTML = ''; // Clear loading message
+
+                    querySnapshot.forEach(doc => {
+                        const event = doc.data();
+                        const eventId = doc.id;
+                        
+                        // Construct the image tag or a fallback message
+                        const posterHtml = event.posterURL 
+                            ? `<img src="${event.posterURL}" alt="Event Poster for ${event.title}">` 
+                            : `<p style="text-align: center; font-size: 10px; color: #777;">No Poster Uploaded</p>`;
+
+                        const card = document.createElement('div');
+                        card.className = 'event-review-card';
+                        card.innerHTML = `
+                            <div class="event-poster-preview">
+                                ${posterHtml}
+                            </div>
+                            <div class="event-details">
+                                <h4>${event.title}</h4>
+                                <p><strong>Date:</strong> ${event.date ? new Date(event.date.seconds * 1000).toLocaleString() : 'N/A'}</p>
+                                <p><strong>Location:</strong> ${event.location}</p>
+                                <p><strong>Posted By:</strong> ${event.postedBy}</p>
+                                <p><strong>Description:</strong> ${event.description ? event.description.substring(0, 100) + '...' : 'N/A'}</p>
+                            </div>
+                            <div class="event-actions">
+                                <button class="approve-btn" data-id="${eventId}">Approve</button>
+                                <button class="reject-btn" data-id="${eventId}">Reject</button>
+                            </div>
+                        `;
+                        eventList.appendChild(card);
+                    });
+                    
+                    // Attach Action Handlers
+                    document.querySelectorAll('.approve-btn').forEach(btn => {
+                        btn.addEventListener('click', () => updateEventStatus(btn.dataset.id, 'approved', assignedFaculty));
+                    });
+                    document.querySelectorAll('.reject-btn').forEach(btn => {
+                        btn.addEventListener('click', () => updateEventStatus(btn.dataset.id, 'rejected', assignedFaculty));
+                    });
+
+                } catch (error) {
+                    console.error("Error fetching pending events:", error);
+                    eventList.innerHTML = '<p style="color: red;">Failed to load events. Check console for details.</p>';
+                }
+            }
+            
+            // --- Firestore Update Function (Approval/Rejection) ---
+            async function updateEventStatus(eventId, newStatus, faculty) {
+                if (!confirm(`Are you sure you want to ${newStatus} this event?`)) {
+                    return;
+                }
+                
+                // Ensure a user is logged in to record who reviewed it
+                const reviewerUid = auth.currentUser ? auth.currentUser.uid : 'anonymous';
+
+                try {
+                    const eventRef = db.collection('events').doc(eventId);
+                    await eventRef.update({ 
+                        status: newStatus,
+                        reviewTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        reviewedBy: reviewerUid
+                    });
+
+                    alert(`Event ${eventId} has been ${newStatus}.`);
+                    // Refresh the list after update
+                    fetchPendingEvents(faculty); 
+
+                } catch (error) {
+                    console.error(`Error updating event status to ${newStatus}:`, error);
+                    alert(`Failed to update event status: ${error.message}`);
+                }
+            }
+
+            // Start loading events
+            fetchPendingEvents(assignedFaculty);
+
+        });
+    </script>
+</body>
+</html>
