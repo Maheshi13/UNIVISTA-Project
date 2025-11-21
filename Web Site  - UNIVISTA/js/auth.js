@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 alert("Registration successful! You are now logged in.");
                 // CRITICAL CHANGE: Redirect to main.html after registration
-                window.location.href = 'main.html'; 
+                window.location.href = 'events.html'; 
             } catch (error) {
                 alert(`Error registering: ${error.message}`);
                 console.error("Registration Error:", error);
@@ -219,3 +219,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
