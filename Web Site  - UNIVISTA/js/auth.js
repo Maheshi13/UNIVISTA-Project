@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // !!! NEW: Validate faculty selection !!!
-            if (!faculty) {
+            if (document.getElementById('reg-faculty') && !faculty) {
                 alert("Please select your Faculty.");
                 return;
             }
@@ -59,24 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('login-password').value;
 
             try {
-                // 1. Sign in the user
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // 2. Check the user's role for redirection logic (in case a crew member uses this form)
-                const userDoc = await db.collection("users").doc(user.uid).get();
-                let role = userDoc.exists ? userDoc.data().role : 'user';
-
-                alert("Login successful!");
-                
-                // CRITICAL CHANGE: Redirect based on role
-                if (role === 'crew') {
-                    // Crew should go to their dedicated dashboard
-                    window.location.href = 'crew-dashboard.html'; 
-                } else {
-                    // Standard user goes to the main events page
-                    window.location.href = 'main.html'; 
-                }
+                await auth.signInWithEmailAndPassword(email, password); // Uses global 'auth'
+                // User login successful, redirect to a general user page
+                window.location.href = 'events.html'; 
             } catch (error) {
                 alert(`Login failed: ${error.message}`);
                 console.error("Login Error:", error);
@@ -101,122 +86,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Crew Registration Select Faculty (crew-register.html) ---
-    const facultyBoxes = document.querySelectorAll('.faculty-box');
-    const crewRegisterForm = document.getElementById('crew-register-form');
-    const selectedFacultyInput = document.getElementById('crew-reg-faculty');
-    const selectedFacultyNameDisplay = document.getElementById('selected-faculty-name');
-
-    facultyBoxes.forEach(box => {
-        box.addEventListener('click', () => {
-            // Deselect all
-            facultyBoxes.forEach(b => b.classList.remove('selected'));
-            
-            // Select current
-            box.classList.add('selected');
-            const facultyName = box.dataset.faculty;
-            
-            // Update form fields
-            selectedFacultyInput.value = facultyName;
-            selectedFacultyNameDisplay.textContent = facultyName;
-            crewRegisterForm.classList.remove('hidden');
-        });
-    });
-
-    // --- Crew Registration Submission (crew-register.html) ---
-    if (crewRegisterForm) {
-        crewRegisterForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('crew-reg-username').value;
-            const email = document.getElementById('crew-reg-email').value;
-            const password = document.getElementById('crew-reg-password').value;
-            const faculty = document.getElementById('crew-reg-faculty').value;
-            
-            try {
-                // 1. Check if the provided username is one of the 11 pre-approved usernames
-                const usernameDoc = await db.collection("crew_usernames").doc(username).get();
-                
-                if (!usernameDoc.exists || usernameDoc.data().isRegistered) {
-                    alert("Invalid or already registered username. Please contact the Admin for your unique username.");
-                    return;
-                }
-
-                // 2. Create the crew user using the email/password
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // 3. Store crew data in 'users' collection with role and faculty
-                await db.collection("users").doc(user.uid).set({
-                    username: username,
-                    email: email,
-                    role: "crew",
-                    faculty: faculty,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // 4. Mark the username as registered to prevent reuse
-                await db.collection("crew_usernames").doc(username).update({
-                    isRegistered: true,
-                    uid: user.uid
-                });
-
-                alert(`Crew account for ${faculty} registered successfully! You can now log in.`);
-                window.location.href = 'crew-login.html';
-            } catch (error) {
-                alert(`Crew Registration Error: ${error.message}`);
-                console.error("Crew Registration Error:", error);
-            }
-        });
-    }
-
     // --- Crew Login (crew-login.html) ---
     const crewLoginForm = document.getElementById('crew-login-form');
     if (crewLoginForm) {
         crewLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('crew-login-username').value;
+            // Assuming the crew-login.html now uses email/password for Firebase Auth
+            const email = document.getElementById('crew-login-email').value;
             const password = document.getElementById('crew-login-password').value;
 
             try {
-                // 1. Find the crew user's email using their unique username
-                const crewQuery = await db.collection("users")
-                    .where("username", "==", username)
-                    .where("role", "==", "crew")
-                    .limit(1).get();
+                // 1. Log in with Email/Password
+                const userCredential = await auth.signInWithEmailAndPassword(email, password); // Uses global 'auth'
+                const user = userCredential.user;
 
-                if (crewQuery.empty) {
-                    alert("Invalid username or not a crew member.");
-                    return;
+                // 2. Fetch the user's profile to verify 'crew' role
+                const userDoc = await db.collection("users").doc(user.uid).get(); // Uses global 'db'
+                const userProfile = userDoc.data();
+
+                if (userProfile && userProfile.role === 'crew') {
+                    // Success: Crew member logged in. IMMEDIATE REDIRECT.
+                    window.location.href = 'crew-manage-events.html';
+                } else {
+                    // Fail: Logged in, but not a crew member. Force log out.
+                    await auth.signOut(); // Uses global 'auth'
+                    alert("Access denied. Your account is not authorized as a crew member. Redirecting to login.");
+                    window.location.href = 'crew-login.html';
                 }
 
-                const crewUserDoc = crewQuery.docs[0];
-                const crewEmail = crewUserDoc.data().email;
-                
-                // 2. Log in using the retrieved email and password
-                await auth.signInWithEmailAndPassword(crewEmail, password);
-                
-                alert(`Welcome, ${crewUserDoc.data().faculty} crew member!`);
-                window.location.href = 'crew-dashboard.html';
             } catch (error) {
+                // Handle Firebase authentication errors (e.g., wrong password, user not found)
                 alert(`Crew Login failed: ${error.message}`);
                 console.error("Crew Login Error:", error);
             }
         });
     }
-
-    // --- Crew Logout (crew-dashboard.html) ---
-    const crewLogoutButton = document.getElementById('crew-logout-button');
-    if (crewLogoutButton) {
-        crewLogoutButton.addEventListener('click', async () => {
+    // Select all potential logout buttons
+    const allLogoutButtons = document.querySelectorAll('#logout-button, #crew-logout-button');
+    allLogoutButtons.forEach(button => {
+        button.addEventListener('click', async () => {
             try {
-                await auth.signOut();
-                alert("Logged out successfully.");
-                window.location.href = 'index.html';
+                await auth.signOut(); // Uses global 'auth'
+                // Redirecting to index.html for general logout
+                window.location.href = 'index.html'; 
             } catch (error) {
                 alert("Logout failed. Please try again.");
                 console.error("Logout Error:", error);
             }
         });
     }
-});
+)});
+
 
