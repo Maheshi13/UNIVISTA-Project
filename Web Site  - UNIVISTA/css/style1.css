@@ -72,7 +72,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('"C:/Users/HP/Desktop/Web Site  - UNIVISTA/image/pic.jpg"') no-repeat center center/cover; /* Your splash screen background image */
+    background: url('image/pic.jpg') no-repeat center center/cover; /* Your splash screen background image */
     display: flex; /* Use flexbox to center content */
     justify-content: center; /* Center horizontally */
     align-items: center; /* Center vertically */
@@ -105,7 +105,7 @@ body {
 
 /* Hide the image tag inside the splash-screen as background is via CSS */
 #splash-screen img {
-    display: none;
+    display: fixed;
 }
 
 /* Class added by JavaScript to trigger the fade-out */
